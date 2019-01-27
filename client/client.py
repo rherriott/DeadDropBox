@@ -12,6 +12,8 @@ HOST = "127.0.0.1"
 PORT = 4321
 ###END DEFINES
 
+
+
 log_file = open("log_" + datetime.now().isoformat() + ".log","w") #I think this will make an ISO timestamped logfile
 sys.stdout = log_file #all "print"s go to a logfile
 
