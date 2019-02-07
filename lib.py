@@ -20,4 +20,5 @@ class DataBlob:
     self.hash = hashlib.md5(data).hexdigest()
   def update(self,new):
     self.data += new
-    
+    self.size = sys.getsizeof(data)
+    self.hash = hashlib.md5(data).hexdigest()
