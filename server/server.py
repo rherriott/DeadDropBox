@@ -3,7 +3,7 @@ import socket
 import sys
 import datetime
 from threading import Thread
-from ../ import lib
+from ../ import lib as lib
 import hashlib
 
 ###DEFINES
@@ -28,7 +28,7 @@ def connHandler():
     
     print "Thread #", thisthread ,": Handler started\n"
     conn, addr = s.accept()
-    print "Thread #", thisthread ,": ",addr, " connected\n"
+    print "Thread #", thisthread ,":",addr, "connected\n"
     #instantiate datablob for all this initial packet to go into
     
     init_date = lib.InitPacket()
@@ -46,11 +46,11 @@ def connHandler():
         break
     #pull the data from the blob
     if (blob_data.size != sys.getsizeof(blob_data.data))
-        print "Failed, blob data not correct length: ", blob_data.size , " vs. ", sys.getsizeof(blob_data.data) , "\n"
+        print "Failed, blob data not correct length:", blob_data.size , "vs.", sys.getsizeof(blob_data.data) , "\n"
         fail()
         break
     if (blob_data.hash != hashlib.md5(blob_data.hash).hexdigest())
-        print "Failed, hashes do not match: ", blob_data.hash , " vs. " , hashlib.md5(blob_data.hash).hexdigest(), "\n"
+        print "Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n"
         fail()
         break
     #temporary: write the file to disk
@@ -62,13 +62,13 @@ def connHandler():
     reply = lib.ReplyPacket(true,blob_data.hash)
     conn.send(reply)
     
-    
+    conn.close()
 
 s = socket(AF_INET, SOCK_STREAM)
 s.bind((HOST, PORT))
 s.listen(MAXWAITS) 
 
-print "Server start: ", datetime.now.isoformat()
+print "Server start:", datetime.now.isoformat()
 
 for i in range(NUMTHREADS):
     Thread(target=connHandler).start()
