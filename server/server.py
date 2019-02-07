@@ -3,6 +3,8 @@ import socket
 import sys
 import datetime
 from threading import Thread
+from ../ import lib
+import hashlib
 
 ###DEFINES
 NUMTHREADS = 10
@@ -16,22 +18,51 @@ PORT = 4321
 log_file = open("log_" + datetime.now().isoformat() + ".log","w") #I think this will make an ISO timestamped logfile
 sys.stdout = log_file #all "print"s go to a logfile
 
-def clientHandler():
+def connHandler():
+    def fail() :
+        print "Sending Fail Packet"
+        conn.send(lib.ReplyPacket())
+        break
+        
     thisthread = str(threading.current_thread())
     
-    print "Thread #", thisthread ,": Handler started"
+    print "Thread #", thisthread ,": Handler started\n"
     conn, addr = s.accept()
-    print "Thread #", thisthread ,": ",addr, " connected"
+    print "Thread #", thisthread ,": ",addr, " connected\n"
     #instantiate datablob for all this initial packet to go into
     
-    
-    data = conn.recv(1024) #change this t whatever the size of the datatructure we use to start the conn is
-    if not data:
+    init_date = lib.InitPacket()
+    init_data = conn.recv(sys.getsizeof(lib.InitPacket)) #change this to whatever the size of the datatructure we use to start the conn is
+    if not init_data:
+        print "Failed, no data recieved\n"
         break
-    print "Received connect from ", repr(addr)
-    #write the data to the blob
-        
-
+    print "Received connect from ", repr(addr), "\n"
+    print "\tblob size: ", init_data.size
+    blob_data = lib.DataBlob()
+    blob_data = conn.recv(init_data.size)
+    if not blob_data:
+        print "Failed, blob data not recieved\n"
+        fail()
+        break
+    #pull the data from the blob
+    if (blob_data.size != sys.getsizeof(blob_data.data))
+        print "Failed, blob data not correct length: ", blob_data.size , " vs. ", sys.getsizeof(blob_data.data) , "\n"
+        fail()
+        break
+    if (blob_data.hash != hashlib.md5(blob_data.hash).hexdigest())
+        print "Failed, hashes do not match: ", blob_data.hash , " vs. " , hashlib.md5(blob_data.hash).hexdigest(), "\n"
+        fail()
+        break
+    #temporary: write the file to disk
+    outfile = open("testoutputdata.blobfile","w+b")
+    outfile.write(blob_data.data)
+    outfile.close()
+    
+    #send reply
+    reply = lib.ReplyPacket(true,blob_data.hash)
+    conn.send(reply)
+    
+    
 
 s = socket(AF_INET, SOCK_STREAM)
 s.bind((HOST, PORT))
@@ -40,7 +71,7 @@ s.listen(MAXWAITS)
 print "Server start: ", datetime.now.isoformat()
 
 for i in range(NUMTHREADS):
-    Thread(target=clientHandler).start()
+    Thread(target=connHandler).start()
 
 s.close()
 
