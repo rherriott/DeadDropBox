@@ -35,7 +35,7 @@ def connHandler():
     init_data = conn.recv(sys.getsizeof(lib.InitPacket)) #change this to whatever the size of the datatructure we use to start the conn is
     if not init_data:
         print ("Thread #", thisthread ,":","Failed, no data recieved\n")
-        break
+        return
     print ("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
     print ("Thread #", thisthread ,":","\tblob size: ", init_data.size)
     blob_data = lib.DataBlob()
@@ -43,16 +43,16 @@ def connHandler():
     if not blob_data:
         print ("Thread #", thisthread ,":","Failed, blob data not recieved\n")
         fail()
-        break
+        return
     #pull the data from the blob
     if (blob_data.size != sys.getsizeof(blob_data.data)):
         print ("Thread #", thisthread ,":","Failed, blob data not correct length:", blob_data.size , "vs.", sys.getsizeof(blob_data.data) , "\n")
         fail()
-        break
+        return
     if (blob_data.hash != hashlib.md5(blob_data.hash).hexdigest()):
         print ("Thread #", thisthread ,":","Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n")
         fail()
-        break
+        return
     #temporary: write the file to disk
     outfile = open("testoutputdata.blobfile","w+b")
     outfile.write(blob_data.data)
