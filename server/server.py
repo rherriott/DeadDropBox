@@ -39,7 +39,7 @@ def connHandler():
     print ("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
     print ("Thread #", thisthread ,":","\tblob size: ", init_data.size)
     blob_data = lib.DataBlob()
-    blob_data = conn.recv(init_data.size):
+    blob_data = conn.recv(init_data.size)
     if not blob_data:
         print ("Thread #", thisthread ,":","Failed, blob data not recieved\n")
         fail()
