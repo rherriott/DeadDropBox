@@ -2,6 +2,7 @@ import sys
 import hashlib
 
 
+
 class InitPacket:
   #this should store the details about the file to be sent & what to do with it
   def __init__(self):
