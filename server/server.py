@@ -3,11 +3,11 @@ import socket
 import sys
 import datetime
 from threading import Thread
-from ../ import lib as lib
+from .. import lib as lib
 import hashlib
 
 ###DEFINES
-NUMTHREADS = 10
+NUMTHREADS = 1 #actual running, 10 maybe? 1 for now since we just need to test that it works at all
 MAXWAITS = 4
 HOST = "127.0.0.1" 
 PORT = 4321
@@ -34,35 +34,38 @@ def connHandler():
     init_date = lib.InitPacket()
     init_data = conn.recv(sys.getsizeof(lib.InitPacket)) #change this to whatever the size of the datatructure we use to start the conn is
     if not init_data:
-        print "Failed, no data recieved\n"
+        print "Thread #", thisthread ,":","Failed, no data recieved\n"
         break
-    print "Received connect from ", repr(addr), "\n"
-    print "\tblob size: ", init_data.size
+    print "Thread #", thisthread ,":","Received connect from ", repr(addr), "\n"
+    print "Thread #", thisthread ,":","\tblob size: ", init_data.size
     blob_data = lib.DataBlob()
     blob_data = conn.recv(init_data.size)
     if not blob_data:
-        print "Failed, blob data not recieved\n"
+        print "Thread #", thisthread ,":","Failed, blob data not recieved\n"
         fail()
         break
     #pull the data from the blob
     if (blob_data.size != sys.getsizeof(blob_data.data))
-        print "Failed, blob data not correct length:", blob_data.size , "vs.", sys.getsizeof(blob_data.data) , "\n"
+        print "Thread #", thisthread ,":","Failed, blob data not correct length:", blob_data.size , "vs.", sys.getsizeof(blob_data.data) , "\n"
         fail()
         break
     if (blob_data.hash != hashlib.md5(blob_data.hash).hexdigest())
-        print "Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n"
+        print "Thread #", thisthread ,":","Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n"
         fail()
         break
     #temporary: write the file to disk
     outfile = open("testoutputdata.blobfile","w+b")
     outfile.write(blob_data.data)
     outfile.close()
+    print "Thread #", thisthread ,":","Wrote recieved data to file\n"
     
     #send reply
     reply = lib.ReplyPacket(true,blob_data.hash)
     conn.send(reply)
+    print "Thread #", thisthread ,":","Sent success packet\n"
     
     conn.close()
+    print "Thread #", thisthread ,":","closing"
 
 s = socket(AF_INET, SOCK_STREAM)
 s.bind((HOST, PORT))
@@ -70,7 +73,7 @@ s.listen(MAXWAITS)
 
 print "Server start:", datetime.now.isoformat()
 
-for i in range(NUMTHREADS):
+for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
     Thread(target=connHandler).start()
 
 s.close()
