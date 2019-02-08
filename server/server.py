@@ -20,7 +20,7 @@ sys.stdout = log_file #all "print"s go to a logfile
 
 def connHandler():
     def fail() :
-        print "Sending Fail Packet"
+        print ("Sending Fail Packet")
         conn.send(lib.ReplyPacket())
         break
         
