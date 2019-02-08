@@ -26,52 +26,52 @@ def connHandler():
         
     thisthread = str(threading.current_thread())
     
-    print "Thread #", thisthread ,": Handler started\n"
+    print ("Thread #", thisthread ,": Handler started\n")
     conn, addr = s.accept()
-    print "Thread #", thisthread ,":",addr, "connected\n"
+    print ("Thread #", thisthread ,":",addr, "connected\n")
     #instantiate datablob for all this initial packet to go into
     
     init_date = lib.InitPacket()
     init_data = conn.recv(sys.getsizeof(lib.InitPacket)) #change this to whatever the size of the datatructure we use to start the conn is
     if not init_data:
-        print "Thread #", thisthread ,":","Failed, no data recieved\n"
+        print ("Thread #", thisthread ,":","Failed, no data recieved\n")
         break
-    print "Thread #", thisthread ,":","Received connect from ", repr(addr), "\n"
-    print "Thread #", thisthread ,":","\tblob size: ", init_data.size
+    print ("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
+    print ("Thread #", thisthread ,":","\tblob size: ", init_data.size)
     blob_data = lib.DataBlob()
     blob_data = conn.recv(init_data.size)
     if not blob_data:
-        print "Thread #", thisthread ,":","Failed, blob data not recieved\n"
+        print ("Thread #", thisthread ,":","Failed, blob data not recieved\n")
         fail()
         break
     #pull the data from the blob
     if (blob_data.size != sys.getsizeof(blob_data.data))
-        print "Thread #", thisthread ,":","Failed, blob data not correct length:", blob_data.size , "vs.", sys.getsizeof(blob_data.data) , "\n"
+        print ("Thread #", thisthread ,":","Failed, blob data not correct length:", blob_data.size , "vs.", sys.getsizeof(blob_data.data) , "\n")
         fail()
         break
     if (blob_data.hash != hashlib.md5(blob_data.hash).hexdigest())
-        print "Thread #", thisthread ,":","Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n"
+        print ("Thread #", thisthread ,":","Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n")
         fail()
         break
     #temporary: write the file to disk
     outfile = open("testoutputdata.blobfile","w+b")
     outfile.write(blob_data.data)
     outfile.close()
-    print "Thread #", thisthread ,":","Wrote recieved data to file\n"
+    print ("Thread #", thisthread ,":","Wrote recieved data to file\n")
     
     #send reply
     reply = lib.ReplyPacket(true,blob_data.hash)
     conn.send(reply)
-    print "Thread #", thisthread ,":","Sent success packet\n"
+    print ("Thread #", thisthread ,":","Sent success packet\n")
     
     conn.close()
-    print "Thread #", thisthread ,":","closing"
+    print ("Thread #", thisthread ,":","closing")
 
 s = socket(AF_INET, SOCK_STREAM)
 s.bind((HOST, PORT))
 s.listen(MAXWAITS) 
 
-print "Server start:", datetime.now.isoformat()
+print ("Server start:", datetime.now.isoformat(),"\n")
 
 for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
     Thread(target=connHandler).start()
