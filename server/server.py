@@ -39,17 +39,17 @@ def connHandler():
     print ("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
     print ("Thread #", thisthread ,":","\tblob size: ", init_data.size)
     blob_data = lib.DataBlob()
-    blob_data = conn.recv(init_data.size)
+    blob_data = conn.recv(init_data.size):
     if not blob_data:
         print ("Thread #", thisthread ,":","Failed, blob data not recieved\n")
         fail()
         break
     #pull the data from the blob
-    if (blob_data.size != sys.getsizeof(blob_data.data))
+    if (blob_data.size != sys.getsizeof(blob_data.data)):
         print ("Thread #", thisthread ,":","Failed, blob data not correct length:", blob_data.size , "vs.", sys.getsizeof(blob_data.data) , "\n")
         fail()
         break
-    if (blob_data.hash != hashlib.md5(blob_data.hash).hexdigest())
+    if (blob_data.hash != hashlib.md5(blob_data.hash).hexdigest()):
         print ("Thread #", thisthread ,":","Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n")
         fail()
         break
