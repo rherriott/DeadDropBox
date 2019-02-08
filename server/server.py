@@ -22,7 +22,7 @@ def connHandler():
     def fail() :
         print ("Sending Fail Packet")
         conn.send(lib.ReplyPacket())
-        break
+        
         
     thisthread = str(threading.current_thread())
     
