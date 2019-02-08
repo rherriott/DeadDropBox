@@ -3,7 +3,7 @@ import socket
 import sys
 import datetime
 from threading import Thread
-from .lib import InitPacket  
+import lib
 import hashlib
 
 ###DEFINES
