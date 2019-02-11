@@ -15,7 +15,7 @@ PORT = 4321
 
 
 
-log_file = open("log_" + datetime.now().isoformat() + ".log","w") #I think this will make an ISO timestamped logfile
+log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".log","w") #I think this will make an ISO timestamped logfile
 sys.stdout = log_file #all "print"s go to a logfile
 
 def connHandler():
