@@ -8,6 +8,9 @@ class InitPacket:
   def __init__(self):
     self.commands = ''
     self.blobsize = 0
+  def __init__(self,commands,blobsize):
+    self.commands = commands
+    self.blobsize = blobsize
   
 class DataBlob:
   def __init__(self):
