@@ -6,17 +6,31 @@
 # if server reports all clear, destroy original file
 # else, throw execption, release file
 
-# the core client 
-import socket
+#the core server code
+from socket import *
+import sys
+import os
+import datetime
+from threading import *
+import lib 
+import hashlib
 
-HOST = '127.0.0.1'  # The server's hostname or IP address
-PORT = 4321        # The port used by the server
+###DEFINES
+MAXWAITS = 4
+HOST = "127.0.0.1" 
+PORT = 4321
+###END DEFINES
 
-log_file = open("log_" + datetime.now().isoformat() + ".log","w") #I think this will make an ISO timestamped logfile
+log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
 sys.stdout = log_file #all "print"s go to a logfile
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((HOST, PORT))
-    data = s.recv(1024)
+print ("Client started:", datetime.datetime.today().isoformat(),"\n")
 
-print "Client Online: ", datetime.now.isoformat()
+#get socket
+s = socket(AF_INET, SOCK_STREAM)
+#connect to host
+s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
+
+print("Connection Closed")
+sys.stdout = sys.__stdout__
+log_file.close()
