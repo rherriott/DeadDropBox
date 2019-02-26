@@ -11,7 +11,7 @@ from socket import *
 import sys
 import os
 import datetime
-from threading import *
+#from threading import *
 import lib 
 import hashlib
 
