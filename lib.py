@@ -16,15 +16,15 @@ class DataBlob:
   def __init__(self):
     self.data = []
     self.size = 0
-    self.hash = 0
+    self.md5hash = 0
   def __init__(self,data):
     self.data = data
     self.size = sys.getsizeof(data)
-    self.hash = hashlib.md5(data).hexdigest()
+    self.md5hash = hashlib.md5(data).hexdigest()
   def update(self,new):
     self.data += new
     self.size = sys.getsizeof(data)
-    self.hash = hashlib.md5(data).hexdigest()
+    self.md5hash = hashlib.md5(data).hexdigest()
 
 class ReplyPacket:
   def __init__(self):
