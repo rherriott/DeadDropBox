@@ -50,9 +50,14 @@ s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
 commands = get_commands()
 data = get_data()
 initpkt = InitPacket(commands,len(data))
+print("Sending InitPacket:\n\tCommands: "+ initpkt.commands + "\n\tBlobsize: " + self.blobsize + "\n" )
+os.flush()
 s.send(initpkt)
+print("Sent InitPacket, awaiting reply\n")
+os.flush()
 rep = s.recv(len(ReplyPacket))
-
+print("Recieved ReplyPacket:\n\tsuccess: " + )
+print()
 
 print("Connection Closed")
 sys.stdout = sys.__stdout__

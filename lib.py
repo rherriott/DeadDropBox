@@ -28,7 +28,7 @@ class DataBlob:
 
 class ReplyPacket:
   def __init__(self):
-    self.success = false
+    self.success = False
     self.ret_hash = hashlib.md5("fug lol").hexdigest()
   def __init__(self, success, ret_hash):
     self.success = success
