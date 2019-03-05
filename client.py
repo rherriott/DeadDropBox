@@ -57,14 +57,18 @@ print("Sent InitPacket")
 dblob = DataBlob(data)
 print("Sending DataBlob:\n\tSize: "+dblob.size+"\n\tHash: "+ dblob.md5hash+"\n")
 os.flush()
-
-s.send()
+s.send(dblob)
+print("Sent DataBlob")
+os.flush()
 rep = s.recv(len(ReplyPacket))
 print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
 os.flush()
-print()
-
+valid = (ret_hash == hashlib.md5(data).hexdigest())
+print("Comparings hashes: " + valid + "\n")
+os.flush()
+s.close()
 print("Connection Closed")
+os.flush()
 sys.stdout = sys.__stdout__
 log_file.close()
 
