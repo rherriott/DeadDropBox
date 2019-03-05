@@ -1,4 +1,0 @@
-Server started: 2019-02-11T19:00:44.465625 
-
-Thread # <Thread(Thread-1, started 9468)> : Handler started
-
