@@ -25,13 +25,13 @@ def connHandler(log_file):
 	def fail():
 		print ("Sending Fail Packet")
 		conn.send(lib.ReplyPacket())
-	s = socket(AF_INET, SOCK_STREAM)
-	s.bind((HOST, PORT))
-	s.listen(MAXWAITS)
+	#s = socket(AF_INET, SOCK_STREAM)
+	#s.bind((HOST, PORT))
+	#s.listen(MAXWAITS)
 	thisthread = str(current_thread())
 	print("Thread #" , thisthread ,": Handler started\n")
 	log_file.flush()
-	conn, addr = s.accept()
+	#conn, addr = s.accept()
 	print("Thread #", thisthread ,":",addr, "connected\n")
 	#instantiate datablob for all this initial packet to go into
 	init_date = lib.InitPacket()
