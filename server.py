@@ -72,16 +72,17 @@ def connHandler(log_file):
 	print ("Thread #", thisthread ,":","closed")
 	log_file.flush()
 
-print ("Server started:", datetime.datetime.today().isoformat(),"\n")
-th = []
-for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
-	thr = Thread(target=connHandler, args = (log_file,))
-	thr.start()
-	th.append(thr)
-log_file.flush()
-for thred in th:
-	while thred.isAlive():
-		pass
-print("Server Closed")
-sys.stdout = sys.__stdout__
-log_file.close()
+if __name__ == "__main__":
+	print ("Server started:", datetime.datetime.today().isoformat(),"\n")
+	th = []
+	for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
+		thr = Thread(target=connHandler, args = (log_file,))
+		thr.start()
+		th.append(thr)
+	log_file.flush()
+	for thred in th:
+		while thred.isAlive():
+			pass
+	print("Server Closed")
+	sys.stdout = sys.__stdout__
+	log_file.close()
