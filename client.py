@@ -34,41 +34,41 @@ def get_datablob():
 log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
 sys.stdout = log_file #all "print"s go to a logfile
 
-print ("Client started:", datetime.datetime.today().isoformat(),"\n")
-
-#get socket
-s = socket(AF_INET, SOCK_STREAM) 
-#if any socket settings changes are needed, they go here
-#connect to host
-HOST = input("Host? (default is localhost)") #may have to fix these due to the janky way that I did logging
-PORT = input("Port? (default is 4321)")
-if not HOST:
-  HOST = "localhost"
-if not PORT:
-  PORT = 4321
-s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
-commands = get_commands()
-data = get_data()
-initpkt = InitPacket(commands,len(data))
-print("Sending InitPacket:\n\tCommands: "+ initpkt.commands + "\n\tBlobsize: " + self.blobsize + "\n" )
-os.flush()
-s.send(initpkt)
-print("Sent InitPacket") 
-dblob = DataBlob(data)
-print("Sending DataBlob:\n\tSize: "+dblob.size+"\n\tHash: "+ dblob.md5hash+"\n")
-os.flush()
-s.send(dblob)
-print("Sent DataBlob")
-os.flush()
-rep = s.recv(len(ReplyPacket))
-print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
-os.flush()
-valid = (ret_hash == hashlib.md5(data).hexdigest())
-print("Comparings hashes: " + valid + "\n")
-os.flush()
-s.close()
-print("Connection Closed")
-os.flush()
-sys.stdout = sys.__stdout__
-log_file.close()
-
+if __name__ == "__main__":
+  print ("Client started:", datetime.datetime.today().isoformat(),"\n")
+  
+  #get socket
+  s = socket(AF_INET, SOCK_STREAM) 
+  #if any socket settings changes are needed, they go here
+  #connect to host
+  HOST = input("Host? (default is localhost)") #may have to fix these due to the janky way that I did logging
+  PORT = input("Port? (default is 4321)")
+  if not HOST:
+    HOST = "localhost"
+  if not PORT:
+    PORT = 4321
+  s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
+  commands = get_commands()
+  data = get_data()
+  initpkt = InitPacket(commands,len(data))
+  print("Sending InitPacket:\n\tCommands: "+ initpkt.commands + "\n\tBlobsize: " + self.blobsize + "\n" )
+  os.flush()
+  s.send(initpkt)
+  print("Sent InitPacket") 
+  dblob = DataBlob(data)
+  print("Sending DataBlob:\n\tSize: "+dblob.size+"\n\tHash: "+ dblob.md5hash+"\n")
+  os.flush()
+  s.send(dblob)
+  print("Sent DataBlob")
+  os.flush()
+  rep = s.recv(len(ReplyPacket))
+  print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
+  os.flush()
+  valid = (ret_hash == hashlib.md5(data).hexdigest())
+  print("Comparings hashes: " + valid + "\n")
+  os.flush()
+  s.close()
+  print("Connection Closed")
+  os.flush()
+  sys.stdout = sys.__stdout__
+  log_file.close()
