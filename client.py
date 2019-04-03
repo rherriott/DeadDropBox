@@ -21,6 +21,9 @@ MAXWAITS = 4
 #PORT = 4321 #I'm gonna keep this as the default port
 ###END DEFINES
 
+log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
+sys.stdout = log_file #all "print"s go to a logfile
+
 def get_commands():
   print("Commands not yet implemented")
   os.flush()
@@ -30,9 +33,6 @@ def get_datablob():
   print("File get not yet implemented")
   os.flush
   return "Test"
-
-log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
-sys.stdout = log_file #all "print"s go to a logfile
 
 if __name__ == "__main__":
   print ("Client started:", datetime.datetime.today().isoformat(),"\n")
