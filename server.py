@@ -36,17 +36,18 @@ def applyOTP(name,otpname): #returns false if infile is empty, name of file hold
 	if (not byte1 or not byte2):
 		return False
 	while(byte1 and byte2):
-		out.write(ord(byte1)^ ord(byte2))
+		bout = bytes([ord(byte1) ^ ord(byte2)])
+		out.write(bout)
 		byte1 = f1.read(1)
 		byte2 = f2.read(1)
 	if (not byte1 and byte2):
 		print("WARN: infile shorter than key!")
 	if (byte1 and not byte2):
 		print("WARN: key shorter than infile!")
-	os.flush()
+	log_file.flush()
 	f1.close()
 	f2.close()
-	f3.close()
+	out.close()
 	return resname 
 
 def connHandler(log_file):
