@@ -20,10 +20,10 @@ log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") 
 sys.stdout = log_file #all "print"s go to a logfile
 
 def generateOTP(name,length): #returns name of file holding generated One Time Pad   
-	otpname = name + "_otp.key"
+	otpname = name + ".OTPkey"
 	otp = open(otpname, "wb")
 	otp.write(os.urandom(length))
-	close(otp)
+	otp.close()
 	return otpname
 
 def applyOTP(name,otpname): #returns false if infile is empty, name of file holding result otherwise
@@ -44,9 +44,9 @@ def applyOTP(name,otpname): #returns false if infile is empty, name of file hold
 	if (byte1 and not byte2):
 		print("WARN: key shorter than infile!")
 	os.flush()
-	close(f1)
-	close(f2)
-	close(out)
+	f1.close()
+	f2.close()
+	f3.close()
 	return resname 
 
 def connHandler(log_file):
