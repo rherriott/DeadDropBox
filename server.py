@@ -19,6 +19,35 @@ PORT = 4321
 log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
 sys.stdout = log_file #all "print"s go to a logfile
 
+def generateOTP(name,length): #returns name of file holding generated One Time Pad   
+	otpname = name + "_otp.key"
+	otp = open(otpname, "wb")
+	otp.write(os.urandom(length))
+	close(otp)
+	return otpname
+
+def applyOTP(name,otpname): #returns false if infile is empty, name of file holding result otherwise
+	resname = name + "_x_" + otpname
+	f1 = open(name,"rb")
+	f2 = open(otpname,"rb")
+	out = open(resname,"wb")
+	byte1 = f1.read(1)
+	byte2 = f2.read(1)
+	if (not byte1 or not byte2):
+		return False
+	while(byte1 and byte2):
+		out.write(ord(byte1)^ ord(byte2))
+		byte1 = f1.read(1)
+		byte2 = f2.read(1)
+	if (not byte1 and byte2):
+		print("WARN: infile shorter than key!")
+	if (byte1 and not byte2):
+		print("WARN: key shorter than infile!")
+	os.flush()
+	close(f1)
+	close(f2)
+	close(out)
+	return resname 
 
 def connHandler(log_file):
 	sys.stdout = log_file
