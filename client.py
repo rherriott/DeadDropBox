@@ -21,8 +21,6 @@ MAXWAITS = 4
 #PORT = 4321 #I'm gonna keep this as the default port
 ###END DEFINES
 
-log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
-sys.stdout = log_file #all "print"s go to a logfile
 
 def get_commands():
   print("Commands not yet implemented")
@@ -35,6 +33,9 @@ def get_datablob():
   return "Test"
 
 if __name__ == "__main__":
+
+  log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
+  sys.stdout = log_file #all "print"s go to a logfile
   print ("Client started:", datetime.datetime.today().isoformat(),"\n")
   
   #get socket
@@ -49,10 +50,11 @@ if __name__ == "__main__":
     PORT = 4321
   s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
   commands = get_commands()
-  data = get_data()
+  data = get_datablob()
   initpkt = InitPacket(commands,len(data))
   print("Sending InitPacket:\n\tCommands: "+ initpkt.commands + "\n\tBlobsize: " + self.blobsize + "\n" )
   os.flush()
+  #Send Data
   s.send(initpkt)
   print("Sent InitPacket") 
   dblob = DataBlob(data)
@@ -61,6 +63,7 @@ if __name__ == "__main__":
   s.send(dblob)
   print("Sent DataBlob")
   os.flush()
+  #Wait for reply
   rep = s.recv(len(ReplyPacket))
   print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
   os.flush()

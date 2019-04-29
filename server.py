@@ -15,10 +15,6 @@ PORT = 4321
 ###END DEFINES
 
 
-
-log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
-sys.stdout = log_file #all "print"s go to a logfile
-
 def generateOTP(name,length): #returns name of file holding generated One Time Pad   
 	otpname = name + ".OTPkey"
 	otp = open(otpname, "wb")
@@ -50,8 +46,8 @@ def applyOTP(name,otpname): #returns false if infile is empty, name of file hold
 	out.close()
 	return resname 
 
-def connHandler(log_file):
-	sys.stdout = log_file
+def connHandler(log_file): #this pretty much needs to be rewritten near-entirely
+	#sys.stdout = log_file
 	def fail():
 		print ("Sending Fail Packet")
 		conn.send(lib.ReplyPacket())
@@ -114,8 +110,10 @@ def listenerThreads:
 			pass
 	
 if __name__ == "__main__":
+	log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
+	sys.stdout = log_file #all "print"s go to a logfile
 	print ("Server started:", datetime.datetime.today().isoformat(),"\n")
 	listenerThreads():
-	print("Server Closed")
+	print("Server Closed\n")
 	sys.stdout = sys.__stdout__
 	log_file.close()
