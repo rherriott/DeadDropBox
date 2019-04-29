@@ -47,9 +47,8 @@ def applyOTP(name,otpname): #returns false if infile is empty, name of file hold
 	return resname 
 
 def connHandler(log_file): #this pretty much needs to be rewritten near-entirely
-	#sys.stdout = log_file
 	def fail():
-		print ("Sending Fail Packet")
+		print ("Sending Fail Packet\n")
 		conn.send(lib.ReplyPacket())
 	#s = socket(AF_INET, SOCK_STREAM)
 	#s.bind((HOST, PORT))
@@ -60,7 +59,7 @@ def connHandler(log_file): #this pretty much needs to be rewritten near-entirely
 	#conn, addr = s.accept()
 	print("Thread #", thisthread ,":",addr, "connected\n")
 	#instantiate datablob for all this initial packet to go into
-	init_date = lib.InitPacket()
+	init_data = lib.InitPacket()
 	init_data = conn.recv(sys.getsizeof(lib.InitPacket)) #change this to whatever the size of the datatructure we use to start the conn is
 	if not init_data:
 		print("Thread #", thisthread ,":","Failed, no data recieved\n")
@@ -108,7 +107,8 @@ def listenerThreads:
 	for thred in th:
 		while thred.isAlive():
 			pass
-	
+
+
 if __name__ == "__main__":
 	log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
 	sys.stdout = log_file #all "print"s go to a logfile
