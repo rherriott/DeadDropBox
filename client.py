@@ -85,7 +85,7 @@ if __name__ == "__main__":
   send_blob(s,data)
   #Wait for reply
   valid = recv_reply(s,data)
-  print("Comparings hashes: " + valid + "\n")
+  print("Hash Comparison Check: " + valid + "\n")
   os.flush()
   s.close()
   print("Connection Closed")
