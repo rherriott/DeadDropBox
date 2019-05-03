@@ -21,6 +21,23 @@ MAXWAITS = 4
 #PORT = 4321 #I'm gonna keep this as the default port
 ###END DEFINES
 
+def con():
+  #get socket
+  s = socket(AF_INET, SOCK_STREAM) 
+  #if any socket settings changes are needed, they go here
+  #connect to host
+  HOST = input("Host? (default is localhost)") #may have to fix these due to the janky way that I did logging
+  PORT = input("Port? (default is 4321)")
+  if not HOST:          #remember to change these to check formatting eventually
+    HOST = "localhost"
+  if not PORT:
+    PORT = 4321
+  try:
+    s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
+  except socket.error:
+    print("Socket failed to connect, quitting.\n")
+    raise SystemExit(1)
+  return s
 
 def get_commands():
   print("Commands not yet implemented")
@@ -52,7 +69,7 @@ def recv_reply(s,data):
   rep = s.recv(len(ReplyPacket))
   print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
   os.flush()
-  ret (ret_hash == hashlib.md5(data).hexdigest())
+  return (ret_hash == hashlib.md5(data).hexdigest())
 
 if __name__ == "__main__":
 
@@ -60,17 +77,8 @@ if __name__ == "__main__":
   sys.stdout = log_file #all "print"s go to a logfile
   print ("Client started:", datetime.datetime.today().isoformat(),"\n")
   
-  #get socket
-  s = socket(AF_INET, SOCK_STREAM) 
-  #if any socket settings changes are needed, they go here
-  #connect to host
-  HOST = input("Host? (default is localhost)") #may have to fix these due to the janky way that I did logging
-  PORT = input("Port? (default is 4321)")
-  if not HOST:
-    HOST = "localhost"
-  if not PORT:
-    PORT = 4321
-  s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
+  #connect
+  s = con()
   commands = get_commands()
   data = get_datablob()
   send_init(s,data)
