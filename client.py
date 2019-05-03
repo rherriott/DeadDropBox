@@ -32,6 +32,23 @@ def get_datablob():
   os.flush
   return "Test"
 
+def send_init(s,data):
+  initpkt = InitPacket(commands,len(data))
+  print("Sending InitPacket:\n\tCommands: "+ initpkt.commands + "\n\tBlobsize: " + self.blobsize + "\n" )
+  os.flush()
+  #Send Data
+  s.send(initpkt)
+  print("Sent InitPacket") 
+def send_blob(s,data):
+  dblob = DataBlob(data)
+  print("Sending DataBlob:\n\tSize: "+dblob.size+"\n\tHash: "+ dblob.md5hash+"\n")
+  os.flush()
+  s.send(dblob)
+  print("Sent DataBlob")
+  os.flush()
+def recv_reply(s):
+  
+
 if __name__ == "__main__":
 
   log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
@@ -51,18 +68,8 @@ if __name__ == "__main__":
   s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
   commands = get_commands()
   data = get_datablob()
-  initpkt = InitPacket(commands,len(data))
-  print("Sending InitPacket:\n\tCommands: "+ initpkt.commands + "\n\tBlobsize: " + self.blobsize + "\n" )
-  os.flush()
-  #Send Data
-  s.send(initpkt)
-  print("Sent InitPacket") 
-  dblob = DataBlob(data)
-  print("Sending DataBlob:\n\tSize: "+dblob.size+"\n\tHash: "+ dblob.md5hash+"\n")
-  os.flush()
-  s.send(dblob)
-  print("Sent DataBlob")
-  os.flush()
+  send_init(s,data)
+  send_blob(s,data)
   #Wait for reply
   rep = s.recv(len(ReplyPacket))
   print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
