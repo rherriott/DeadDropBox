@@ -38,7 +38,8 @@ def send_init(s,data):
   os.flush()
   #Send Data
   s.send(initpkt)
-  print("Sent InitPacket") 
+  print("Sent InitPacket")
+  
 def send_blob(s,data):
   dblob = DataBlob(data)
   print("Sending DataBlob:\n\tSize: "+dblob.size+"\n\tHash: "+ dblob.md5hash+"\n")
@@ -46,8 +47,12 @@ def send_blob(s,data):
   s.send(dblob)
   print("Sent DataBlob")
   os.flush()
-def recv_reply(s):
-  
+
+def recv_reply(s,data):
+  rep = s.recv(len(ReplyPacket))
+  print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
+  os.flush()
+  ret (ret_hash == hashlib.md5(data).hexdigest())
 
 if __name__ == "__main__":
 
@@ -71,10 +76,7 @@ if __name__ == "__main__":
   send_init(s,data)
   send_blob(s,data)
   #Wait for reply
-  rep = s.recv(len(ReplyPacket))
-  print("Recieved ReplyPacket:\n\tsuccess: " + rep.success + "\n\tHash: " + rep.ret_hash + "\n")
-  os.flush()
-  valid = (ret_hash == hashlib.md5(data).hexdigest())
+  valid = recv_reply(s,data)
   print("Comparings hashes: " + valid + "\n")
   os.flush()
   s.close()
