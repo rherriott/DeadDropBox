@@ -58,7 +58,8 @@ def __getLargeRandomPrime(length):
     while(True):
         i += 1
         num = __getLargeRandom(length)
-        print(str(type(num)) + ":" + str(num))
+        #print(str(type(num)) + ":" + str(num))
+        print('.', end="")
         if(__isPrime(num, 30)):
             print("Processed " + str(i) + " numbers.")
             return num
@@ -74,19 +75,70 @@ def getAESKey(keylen):
     return __getLargeRandom(keylen)
 
 '''
+Uses pseudocode from Wikipedia
+'''
+def __euclideanGCD(num, mod):
+    div = mod // num
+    rem = mod % num
+    print(str(mod) + " = " + str(div) + " * " + str(num) + " + " + str(rem))
+    if rem == 0:
+        return num, list()
+    else:
+        a, eqs = __euclideanGCD(rem, num)
+        eqs.append([mod, div, num])
+        return a, eqs
+
+def __modInverse(num, mod):
+    gcd, eqlist = __euclideanGCD(num, mod)
+    
+    if gcd != 1:
+        return -1
+    
+    print()
+    for i in eqlist:
+        for j in i:
+            print(str(j), end=" ")
+        print()
+    print()
+
+    factorA = (1, eqlist[0][0])
+    factorB = (-eqlist[0][1], eqlist[0][2])
+    print(str(gcd), end="")
+    print(" = " + str(factorA[0]) + " * " + str(factorA[1]), end="")
+    print(" + " + str(factorB[0]) + " * " + str(factorB[1]))
+    
+    for i in range(len(eqlist) - 1):
+        eq = eqlist[i + 1]
+        factorB = (factorB[0], eq[0])
+        factorA = (factorA[0] - eq[1] * factorB[0], factorA[1])
+        print(str(gcd), end="")
+        print(" = " + str(factorA[0]) + " * " + str(factorA[1]), end="")
+        print(" + " + str(factorB[0]) + " * " + str(factorB[1]))
+        if(factorA[1] < factorB[1]):
+            temp = tuple(factorA)
+            factorA = tuple(factorB)
+            factorB = tuple(temp)
+
+    inv = factorA[0] if factorA[1] != mod else factorB[0]
+    return inv if inv > 0 else inv + mod
+
+'''
 Returns a secure RSA keypair and modulus.
 
 '''
 def getRSAKeypair(keylen):
-    p = __getLargeRandomPrime(1024)
-    q = __getLargeRandomPrime(1024)
+    p = __getLargeRandomPrime(keylen)
+    q = __getLargeRandomPrime(keylen)
     
     n = p * q
+    mod = (p-1)*(q-1)
+    pub = 65537
+    priv = __modInverse(pub, mod)
+    return pub, mod, priv
 
-    totient = (p-1)(q-1)
-
-   #d = 
-    
-    e = 65537
-
-print(__getLargeRandomPrime(1024))
+if __name__ == "__main__":
+    #print(str(__modInverse(42, 2017)))
+    #print(str(__modInverse(11, 14)))
+    #print(str(__modInverse(17, 780)))
+    print(getRSAKeypair(1024))
+    #print(getAESKey(128))
