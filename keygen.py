@@ -60,7 +60,8 @@ def __getLargeRandomPrime(length):
         i += 1
         num = __getLargeRandom(length)
         #print(str(type(num)) + ":" + str(num))
-        print('.', end="")
+        if i % 10 == 0:
+            print('.', end="")
         if(__isPrime(num, 30)):
             print("Processed " + str(i) + " numbers.")
             return num
