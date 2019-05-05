@@ -1,6 +1,7 @@
 from os import urandom
 import random
 
+DEBUG = False
 '''
 '''
 def __getRandomBitstream(bits):
@@ -80,7 +81,8 @@ Uses pseudocode from Wikipedia
 def __euclideanGCD(num, mod):
     div = mod // num
     rem = mod % num
-    print(str(mod) + " = " + str(div) + " * " + str(num) + " + " + str(rem))
+    if DEBUG:
+        print(str(mod) + " = " + str(div) + " * " + str(num) + " + " + str(rem))
     if rem == 0:
         return num, list()
     else:
@@ -93,27 +95,22 @@ def __modInverse(num, mod):
     
     if gcd != 1:
         return -1
-    
-    print()
-    for i in eqlist:
-        for j in i:
-            print(str(j), end=" ")
-        print()
-    print()
 
     factorA = (1, eqlist[0][0])
     factorB = (-eqlist[0][1], eqlist[0][2])
-    print(str(gcd), end="")
-    print(" = " + str(factorA[0]) + " * " + str(factorA[1]), end="")
-    print(" + " + str(factorB[0]) + " * " + str(factorB[1]))
+    if DEBUG:
+        print(str(gcd), end="")
+        print(" = " + str(factorA[0]) + " * " + str(factorA[1]), end="")
+        print(" + " + str(factorB[0]) + " * " + str(factorB[1]))
     
     for i in range(len(eqlist) - 1):
         eq = eqlist[i + 1]
         factorB = (factorB[0], eq[0])
         factorA = (factorA[0] - eq[1] * factorB[0], factorA[1])
-        print(str(gcd), end="")
-        print(" = " + str(factorA[0]) + " * " + str(factorA[1]), end="")
-        print(" + " + str(factorB[0]) + " * " + str(factorB[1]))
+        if DEBUG:
+            print(str(gcd), end="")
+            print(" = " + str(factorA[0]) + " * " + str(factorA[1]), end="")
+            print(" + " + str(factorB[0]) + " * " + str(factorB[1]))
         if(factorA[1] < factorB[1]):
             temp = tuple(factorA)
             factorA = tuple(factorB)
