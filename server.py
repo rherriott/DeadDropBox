@@ -7,6 +7,7 @@ from threading import *
 import lib #I have no goddamn idea how importing modules works
 import hashlib
 import keygen
+import math
 
 ###DEFINES
 NUMTHREADS = 1 #actual running, 10 maybe? 1 for now since we just need to test that it works at all
@@ -14,13 +15,18 @@ MAXWAITS = 10
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 4321
 BUFSIZE = 4096
+OTP_KEY_EXTENSION = ".OTPkey"
+GLOBAL_THREADNO = 0
 ###END DEFINES
 
 
-def generateOTP(name,length): #returns name of file holding generated One Time Pad   
-	otpname = name + ".OTPkey"
+def generateOTP(name,length): #returns name of file holding generated One Time Pad
+	length = math.ceil(length/8) * 8
+	otpname = name + OTP_KEY_EXTENSION
 	otp = open(otpname, "wb")
-	otp.write(os.urandom(length))
+	print("Length: " + str(length))
+	print("Generated: " + str(bin(keygen.__getLargeRandom(length))))
+	otp.write(str(bin(keygen.__getLargeRandom(length)))[2:].encode())
 	otp.close()
 	return otpname
 
@@ -46,9 +52,32 @@ def applyOTP(name,otpname): #returns false if infile is empty, name of file hold
 	f1.close()
 	f2.close()
 	out.close()
-	return resname 
+	return resname
+
+def recieve_commands(conn):
+	init_commands = conn.recv(BUFSIZE).decode()
+	print("Recieved commands: " + str(init_commands) + "\n")
+	conn.sendall("ACK".encode())
+	return init_commands
+
+def recieve_size(conn):
+	init_size = conn.recv(BUFSIZE).decode()
+	conn.sendall("ACK".encode())
+	print("Recieved size: " + str(init_size) + "\n")
+	return init_size
+
+def recieve_data(conn, numpacks):
+	datastr = ""
+	for i in range(numpacks):
+		print("Recieving part " + str(i))
+		datastr = datastr + conn.recv(BUFSIZE).decode()
+		conn.sendall("ACK".encode())
+	return datastr
 
 def connHandler(): #this pretty much needs to be rewritten near-entirely
+	global GLOBAL_THREADNO
+	threadno = str(GLOBAL_THREADNO + 1)
+	GLOBAL_THREADNO += 1
 	def fail():
 		print ("Sending Fail Packet\n")
 		conn.send(lib.ReplyPacket())
@@ -61,23 +90,15 @@ def connHandler(): #this pretty much needs to be rewritten near-entirely
 	conn, addr = s.accept()
 	print("Thread #", thisthread ,":",addr, "connected\n")
 	#instantiate datablob for all this initial packet to go into
-	init_commands = conn.recv(BUFSIZE).decode()
-	print("Recieved commands: " + str(init_commands) + "\n")
-	conn.sendall("ACK".encode())
-	init_size = conn.recv(BUFSIZE).decode()
-	conn.sendall("ACK".encode())
-	print("Recieved size: " + str(init_size) + "\n")
+	init_commands = recieve_commands(conn)
+	init_size = recieve_size(conn)
 	init_data = lib.InitPacket(init_commands, init_size)
 	if not init_data:
 		print("Thread #", thisthread ,":","Failed, no data recieved\n")
 		return
 	print("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
 	print("Thread #", thisthread ,":","\tblob size: ", init_data.blobsize)
-	datastr = ""
-	for i in range(int(init_data.blobsize)//BUFSIZE + 1):
-		print("Recieving part " + str(i))
-		datastr = datastr + conn.recv(BUFSIZE).decode()
-		conn.sendall("ACK".encode())
+	datastr = recieve_data(conn, int(init_data.blobsize)//BUFSIZE + 1)
 	blob_data = lib.DataBlob(datastr)
 	print("Created datablob\n")
 	if not blob_data:
@@ -90,15 +111,38 @@ def connHandler(): #this pretty much needs to be rewritten near-entirely
 		fail()
 		return
 	#log_file.flush()
-	#temporary: write the file to disk
-	outfile = open("testoutputdata.blobfile","w+b")
-	outfile.write(blob_data.data.encode())
-	outfile.close()
-	print ("Thread #", thisthread ,":","Wrote recieved data to file\n")
+	
 	#send reply
-	lib.ReplyPacket(True, blob_data.md5hash)
 	conn.send(blob_data.md5hash.encode())
 	print ("Thread #", thisthread ,":","Sent success packet\n")
+	
+	#Convert data to binary
+	blob_data = lib.DataBlob(''.join(format(ord(i),'b') for i in blob_data.data))
+	print("Data: " + blob_data.data)
+	#Generate OTP of correct length
+	generateOTP(threadno, blob_data.size)
+	otpfile = open(threadno + OTP_KEY_EXTENSION, "r")
+	otp = otpfile.read()
+	print("OTP:  " + otp)
+	otpfile.seek(0)
+		
+	outfile = open("testoutputdata.blobfile","w+b")
+	data_bin = blob_data.data
+	if int(data_bin, 2) % 8 != 0:
+		data_bin = "0" * (8 - (int(data_bin, 2) % 8)) + data_bin
+	otp_bin = otp
+	#data_bin = ''.join(format(ord(i),'b') for i in blob_data.data)
+	#otp_bin = ''.join(format(ord(i),'b') for i in otp)
+	print("Data_binary: " + data_bin)
+	print("OTP_binary:  " + otp)
+	encstr = ""
+	for a, b in zip(data_bin, otp_bin):
+		encstr += str(int(a) ^ int(b))
+	print("outp:" + encstr)
+	outfile.write(encstr.encode())
+	outfile.close()
+	print ("Thread #", thisthread ,":","Wrote recieved data to file\n")
+
 	
 	conn.close()
 	s.close()
@@ -112,8 +156,8 @@ def listenerThreads():
 		thr.start()
 		th.append(thr)
 	#log_file.flush()
-	for thred in th:
-		while thred.isAlive():
+	for thread in th:
+		while thread.isAlive():
 			pass
 
 

@@ -41,7 +41,7 @@ def con():
 def get_commands():
   print("Commands not yet implemented")
   #os.flush()
-  return "cmd1" #Breaks if no content
+  return "10" #Breaks if no content
 
 def get_datablob():
   print("File get not yet implemented")

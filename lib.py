@@ -8,10 +8,6 @@ class InitPacket:
     self.blobsize = blobsize
   
 class DataBlob:
-  def __init__(self):
-    self.data = []
-    self.size = 0
-    self.md5hash = 0
   def __init__(self,data = None):
     if data is None:
       self.data = []
@@ -23,7 +19,7 @@ class DataBlob:
       self.md5hash = hashlib.md5(data.encode()).hexdigest()
   def update(self,new):
     self.data += new
-    self.size = sys.getsizeof(data)
+    self.size = len(data)
     self.md5hash = hashlib.md5(data.encode()).hexdigest()
 
 class ReplyPacket:
