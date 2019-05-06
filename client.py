@@ -41,12 +41,12 @@ def con():
 def get_commands():
   print("Commands not yet implemented")
   #os.flush()
-  return ""
+  return "cmd1" #Breaks if no content
 
 def get_datablob():
   print("File get not yet implemented")
   #os.flush()
-  return "Test"
+  return "Test" #Breaks if no content
 
 def send_init(s,data):
   initpkt = InitPacket(commands,len(data))
@@ -54,22 +54,30 @@ def send_init(s,data):
   #os.flush()
   #Send Data
   s.sendall(str(initpkt.commands).encode())
+  print("Sent commands.\n")
+  s.recv(BUFSIZE)
   s.sendall(str(initpkt.blobsize).encode())
+  print("Sent size.\n")
+  s.recv(BUFSIZE)
   print("Sent InitPacket")
   
 def send_blob(s,data):
   dblob = DataBlob(data)
-  print("Sending DataBlob:\n\tSize: "+str(dblob.size)+"\n\tHash: "+ str(dblob.md5hash) +"\n")
+  print("Sending DataBlob:\n\tSize: "+str(dblob.size)+"\n\tHash: "+ str(dblob.md5hash) +"\n\tData: " + str(dblob.data))
   #os.flush()
-  s.send(dblob)
+  print(type(dblob.data))
+  for i in range(dblob.size//BUFSIZE + 1):
+    print("Sent: part " + str(i))
+    s.sendall(dblob.data[i*BUFSIZE:(i+1)*BUFSIZE].encode())
+    s.recv(BUFSIZE)
   print("Sent DataBlob")
   #os.flush()
 
 def recv_reply(s,data):
-  rep = s.recv(len(ReplyPacket))
-  print("Recieved ReplyPacket:\n\tsuccess: " + str(rep.success) + "\n\tHash: " + str(rep.ret_hash) + "\n")
+  rep = s.recv(BUFSIZE).decode()
+  print("Recieved ReplyPacket Hash: " + str(rep) + "\n")
   #os.flush()
-  return (ret_hash == hashlib.md5(data).hexdigest())
+  return (rep == hashlib.md5(data.encode()).hexdigest())
 
 if __name__ == "__main__":
 
@@ -85,7 +93,7 @@ if __name__ == "__main__":
   send_blob(s,data)
   #Wait for reply
   valid = recv_reply(s,data)
-  print("Hash Comparison Check: " + valid + "\n")
+  print("Hash Comparison Check: " + str(valid) + "\n")
   #os.flush()
   s.close()
   print("Connection Closed")
