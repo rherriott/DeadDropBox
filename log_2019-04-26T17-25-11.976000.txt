@@ -1,5 +1,0 @@
-Server started: 2019-04-26T17:25:11.977000 
-
-Thread # <Thread(Thread-1, started 3860)> : Handler started
-
-Server Closed

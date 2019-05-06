@@ -1,17 +1,19 @@
 #the core server code
-from socket import *
+import socket
 import sys
 import os
 import datetime
 from threading import *
 import lib #I have no goddamn idea how importing modules works
 import hashlib
+import keygen
 
 ###DEFINES
 NUMTHREADS = 1 #actual running, 10 maybe? 1 for now since we just need to test that it works at all
-MAXWAITS = 4
-HOST = "127.0.0.1" 
+MAXWAITS = 10
+HOST = socket.gethostbyname(socket.gethostname())
 PORT = 4321
+BUFSIZE = 4096
 ###END DEFINES
 
 
@@ -50,23 +52,23 @@ def connHandler(log_file): #this pretty much needs to be rewritten near-entirely
 	def fail():
 		print ("Sending Fail Packet\n")
 		conn.send(lib.ReplyPacket())
-	#s = socket(AF_INET, SOCK_STREAM)
-	#s.bind((HOST, PORT))
-	#s.listen(MAXWAITS)
+	s = socket.socket()
+	s.bind((HOST, PORT))
+	s.listen(MAXWAITS)
 	thisthread = str(current_thread())
 	print("Thread #" , thisthread ,": Handler started\n")
 	log_file.flush()
-	#conn, addr = s.accept()
+	conn, addr = s.accept()
 	print("Thread #", thisthread ,":",addr, "connected\n")
 	#instantiate datablob for all this initial packet to go into
-	init_data = lib.InitPacket()
-	init_data = conn.recv(sys.getsizeof(lib.InitPacket)) #change this to whatever the size of the datatructure we use to start the conn is
+	init_commands = conn.recv(BUFSIZE).decode()
+	init_size = conn.recv(BUFSIZE).decode()
+	init_data = lib.InitPacket(init_commands, init_size)
 	if not init_data:
 		print("Thread #", thisthread ,":","Failed, no data recieved\n")
 		return
 	print("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
 	print("Thread #", thisthread ,":","\tblob size: ", init_data.size)
-	blob_data = lib.DataBlob()
 	blob_data = conn.recv(init_data.size)
 	if not blob_data:
 		print ("Thread #", thisthread ,":","Failed, blob data not recieved\n")
@@ -97,13 +99,13 @@ def connHandler(log_file): #this pretty much needs to be rewritten near-entirely
 	print ("Thread #", thisthread ,":","closed\n")
 	log_file.flush()
 
-def listenerThreads:
+def listenerThreads():
 	th = []
 	for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
 		thr = Thread(target=connHandler, args = (log_file,))
 		thr.start()
 		th.append(thr)
-	log_file.flush()
+	#log_file.flush()
 	for thred in th:
 		while thred.isAlive():
 			pass
@@ -111,9 +113,9 @@ def listenerThreads:
 
 if __name__ == "__main__":
 	log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
-	sys.stdout = log_file #all "print"s go to a logfile
+	#sys.stdout = log_file #all "print"s go to a logfile
 	print ("Server started:", datetime.datetime.today().isoformat(),"\n")
-	listenerThreads():
+	listenerThreads()
 	print("Server Closed\n")
 	sys.stdout = sys.__stdout__
 	log_file.close()
