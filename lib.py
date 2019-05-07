@@ -26,4 +26,8 @@ class ReplyPacket:
   def __init__(self, success = False, ret_hash = hashlib.md5("fug lol".encode()).hexdigest()):
     self.success = success
     self.ret_hash = ret_hash
-    
+
+
+#def AES_encrypt():
+
+#def AES_decrypt():

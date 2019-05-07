@@ -8,6 +8,9 @@ import lib #I have no goddamn idea how importing modules works
 import hashlib
 import keygen
 import math
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Random import get_random_bytes
 
 ###DEFINES
 NUMTHREADS = 1 #actual running, 10 maybe? 1 for now since we just need to test that it works at all
@@ -23,11 +26,12 @@ GLOBAL_THREADNO = 0
 def generateOTP(name,length): #returns name of file holding generated One Time Pad
 	length = math.ceil(length/8) * 8
 	otpname = name + OTP_KEY_EXTENSION
-	otp = open(otpname, "wb")
+	otpfile = open(otpname, "wb")
 	print("Length: " + str(length))
-	print("Generated: " + str(bin(keygen.__getLargeRandom(length))))
-	otp.write(str(bin(keygen.__getLargeRandom(length)))[2:].encode())
-	otp.close()
+	otp = str(bin(keygen.__getLargeRandom(length)))
+	print("Generated: " + otp)
+	otpfile.write(otp[2:].encode())
+	otpfile.close()
 	return otpname
 
 def applyOTP(name,otpname): #returns false if infile is empty, name of file holding result otherwise
@@ -74,13 +78,32 @@ def recieve_data(conn, numpacks):
 		conn.sendall("ACK".encode())
 	return datastr
 
-def connHandler(): #this pretty much needs to be rewritten near-entirely
+def get_AES_key(conn):
+        if not (os.path.isfile("public_key.pem")):
+              RSA_key = RSA.generate(1024)
+              private_key = RSA_key.export_key()
+              private_file = open("private_key.pem", "wb")
+              private_file.write(private_key)
+
+              public_key = RSA_key.publickey().export_key()
+              public_file = open("public_key.pem", "wb")
+              public_file.write(public_key)
+              
+        #public_key = RSA.import_key(open("public_key.pem").read())
+        public_key = open("public_key.pem").read()
+        conn.sendall(public_key.encode())
+        encrypted_AES_key = conn.recv(BUFSIZE)
+        private_key = RSA.import_key(open("private_key.pem").read())
+        return PKCS1_OAEP.new(private_key).decrypt(encrypted_AES_key)
+
+def connHandler(): 
 	global GLOBAL_THREADNO
 	threadno = str(GLOBAL_THREADNO + 1)
 	GLOBAL_THREADNO += 1
 	def fail():
 		print ("Sending Fail Packet\n")
 		conn.send(lib.ReplyPacket())
+	
 	s = socket.socket()
 	s.bind((HOST, PORT))
 	s.listen(MAXWAITS)
@@ -89,7 +112,12 @@ def connHandler(): #this pretty much needs to be rewritten near-entirely
 	#log_file.flush()
 	conn, addr = s.accept()
 	print("Thread #", thisthread ,":",addr, "connected\n")
-	#instantiate datablob for all this initial packet to go into
+
+        #Key Exchange
+	k_AES = get_AES_key(conn)
+	print("AES key: " + str(k_AES))
+        
+	#Send initial packet
 	init_commands = recieve_commands(conn)
 	init_size = recieve_size(conn)
 	init_data = lib.InitPacket(init_commands, init_size)
@@ -138,12 +166,11 @@ def connHandler(): #this pretty much needs to be rewritten near-entirely
 	encstr = ""
 	for a, b in zip(data_bin, otp_bin):
 		encstr += str(int(a) ^ int(b))
-	print("outp:" + encstr)
+	print("outp1:       " + encstr)
 	outfile.write(encstr.encode())
 	outfile.close()
 	print ("Thread #", thisthread ,":","Wrote recieved data to file\n")
 
-	
 	conn.close()
 	s.close()
 	print ("Thread #", thisthread ,":","closed\n")

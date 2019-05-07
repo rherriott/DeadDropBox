@@ -1,5 +1,2 @@
-st = "Hello world"
-for i in range (0, 30, 3):
-    mystr = st[i:i+3]
-    if mystr !="":
-        print(mystr)
+from Crypto.Random import get_random_bytes
+print(get_random_bytes(16).decode())

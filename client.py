@@ -15,6 +15,9 @@ import datetime
 from lib import * 
 import hashlib
 import keygen
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Random import get_random_bytes
 
 ###DEFINES
 MAXWAITS = 10
@@ -79,6 +82,13 @@ def recv_reply(s,data):
   #os.flush()
   return (rep == hashlib.md5(data.encode()).hexdigest())
 
+def send_AES(sock):
+  public_key = sock.recv(BUFSIZE).decode()
+  AES_key = get_random_bytes(16)
+  encryped_AES_key = PKCS1_OAEP.new(RSA.import_key(public_key)).encrypt(AES_key)
+  sock.sendall(encryped_AES_key)
+  return AES_key
+
 if __name__ == "__main__":
 
   #log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
@@ -87,6 +97,9 @@ if __name__ == "__main__":
   
   #connect
   s = con()
+  private_AES = get_random_bytes(16)
+  conn_AES = send_AES(s)
+  print("AES key: " + str(conn_AES))
   commands = get_commands()
   data = get_datablob()
   send_init(s,data)
