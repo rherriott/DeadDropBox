@@ -172,8 +172,9 @@ def connHandler():
 		
 	outfile = open(str(threadno) + ".blobfile","w+b")
 	data_bin = blob_data.data
-	if int(data_bin, 2) % 8 != 0:
-		data_bin = "0" * (8 - (int(data_bin, 2) % 8)) + data_bin
+	#if int(data_bin, 2) % 8 != 0:
+		#print("Adding " + str(8 - (int(data_bin, 2) % 8)) + " 0s")
+		#data_bin = "0" * (8 - (int(data_bin, 2) % 8)) + data_bin
 	otp_bin = otp
 	#data_bin = ''.join(format(ord(i),'b') for i in blob_data.data)
 	#otp_bin = ''.join(format(ord(i),'b') for i in otp)

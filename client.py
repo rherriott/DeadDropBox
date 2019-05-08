@@ -49,7 +49,7 @@ def get_commands():
 def get_datablob():
   print("File get not yet implemented")
   #os.flush()
-  return "This is a test string." #Breaks if no content
+  return "lORem iPsUm" #Breaks if no content
 
 def send_init(s,data):
   initpkt = InitPacket(commands,len(data))
@@ -139,7 +139,7 @@ if __name__ == "__main__":
   #Recieve OTP ^ Data
   xor = recv_data(s, size//BUFSIZE + 1)
 
-  print("Recieved encoded:" + str(xor))
+  print("Recieved encoded: \n" + str(xor))
   
   otp_file = open("otp", 'r')
   otp = otp_file.read()
@@ -147,7 +147,7 @@ if __name__ == "__main__":
   for a, b in zip(xor, otp):
     data += str(int(a) ^ int(b))
 
-  print("Read otp: " + otp)
+  print("Read otp: \n" + otp)
 
   print("Got data: \n" + data)
   
