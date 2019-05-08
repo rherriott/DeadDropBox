@@ -49,45 +49,57 @@ def get_commands():
 def get_datablob():
   print("File get not yet implemented")
   #os.flush()
-  return "Test" #Breaks if no content
+  return "This is a test string." #Breaks if no content
 
 def send_init(s,data):
   initpkt = InitPacket(commands,len(data))
   print("Sending InitPacket:\n\tCommands: "+ str(initpkt.commands) + "\n\tBlobsize: " + str(initpkt.blobsize) + "\n" )
-  #os.flush()
+  print("Data: " + str(data))
   #Send Data
-  s.sendall(str(initpkt.commands).encode())
+  s.sendall(str(initpkt.commands).encode('latin-1'))
   print("Sent commands.\n")
   s.recv(BUFSIZE)
-  s.sendall(str(initpkt.blobsize).encode())
+  s.sendall(str(initpkt.blobsize).encode('latin-1'))
   print("Sent size.\n")
   s.recv(BUFSIZE)
   print("Sent InitPacket")
+  return initpkt.blobsize
   
 def send_blob(s,data):
+  
   dblob = DataBlob(data)
   print("Sending DataBlob:\n\tSize: "+str(dblob.size)+"\n\tHash: "+ str(dblob.md5hash) +"\n\tData: " + str(dblob.data))
-  #os.flush()
-  print(type(dblob.data))
+
   for i in range(dblob.size//BUFSIZE + 1):
     print("Sent: part " + str(i))
-    s.sendall(dblob.data[i*BUFSIZE:(i+1)*BUFSIZE].encode())
+    s.sendall(dblob.data[i*BUFSIZE:(i+1)*BUFSIZE].encode('latin-1'))
     s.recv(BUFSIZE)
   print("Sent DataBlob")
-  #os.flush()
+
 
 def recv_reply(s,data):
-  rep = s.recv(BUFSIZE).decode()
+  rep = s.recv(BUFSIZE).decode('latin-1')
   print("Recieved ReplyPacket Hash: " + str(rep) + "\n")
   #os.flush()
-  return (rep == hashlib.md5(data.encode()).hexdigest())
+  return (rep == hashlib.md5(data).hexdigest())
 
 def send_AES(sock):
-  public_key = sock.recv(BUFSIZE).decode()
+  public_key = sock.recv(BUFSIZE).decode('latin-1')
   AES_key = get_random_bytes(16)
   encryped_AES_key = PKCS1_OAEP.new(RSA.import_key(public_key)).encrypt(AES_key)
+  AES_key_object = AES.new(AES_key, AES.MODE_EAX)
   sock.sendall(encryped_AES_key)
-  return AES_key
+  sock.recv(BUFSIZE)
+  sock.sendall(str(AES_key_object.nonce).encode('latin-1'))
+  return AES_key_object, AES_key
+
+def recv_data(sock, numpacks):
+  datastr = ""
+  for i in range(numpacks):
+    print("Recieving part " + str(i))
+    datastr = datastr + sock.recv(BUFSIZE).decode('latin-1')
+    sock.sendall("ACK".encode('latin-1'))
+  return datastr
 
 if __name__ == "__main__":
 
@@ -97,19 +109,57 @@ if __name__ == "__main__":
   
   #connect
   s = con()
-  private_AES = get_random_bytes(16)
-  conn_AES = send_AES(s)
+  AES_init_bytes = get_random_bytes(16)
+  private_AES_key_object = AES.new(AES_init_bytes, AES.MODE_EAX)
+  AES_key_object, conn_AES = send_AES(s)
   print("AES key: " + str(conn_AES))
+  print("AES nonce: " + str(AES_key_object.nonce))
+  
+  #Prompt user for commands
   commands = get_commands()
-  data = get_datablob()
-  send_init(s,data)
-  send_blob(s,data)
+
+  #Create data object
+  data = AES_encrypt(private_AES_key_object, get_datablob())
+  
+  size = send_init(s,data)
+  send_blob(s,data.decode('latin-1'))
+  
   #Wait for reply
   valid = recv_reply(s,data)
   print("Hash Comparison Check: " + str(valid) + "\n")
-  #os.flush()
+  
+  #Recieve OTP
+  otp = recv_data(s, size//BUFSIZE + 1)
+  file = open("otp", 'w')
+  file.write(otp)
+  file.close()
+
+  #Wait
+
+  #Recieve OTP ^ Data
+  xor = recv_data(s, size//BUFSIZE + 1)
+
+  print("Recieved encoded:" + str(xor))
+  
+  otp_file = open("otp", 'r')
+  otp = otp_file.read()
+  data = ""
+  for a, b in zip(xor, otp):
+    data += str(int(a) ^ int(b))
+
+  print("Read otp: " + otp)
+
+  print("Got data: \n" + data)
+  
+  enc_data = ""
+  for i in range(len(data)//8):
+    enc_data += chr(int(data[i*8:i*8 + 8], 2))
+
+  print("Encrypted data:" + enc_data)
+  
+  print(AES_decrypt(AES.new(AES_init_bytes, AES.MODE_EAX, private_AES_key_object.nonce), enc_data))
   s.close()
   print("Connection Closed")
-  #os.flush()
+
   sys.stdout = sys.__stdout__
   #log_file.close()

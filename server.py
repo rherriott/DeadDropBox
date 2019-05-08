@@ -30,7 +30,7 @@ def generateOTP(name,length): #returns name of file holding generated One Time P
 	print("Length: " + str(length))
 	otp = str(bin(keygen.__getLargeRandom(length)))
 	print("Generated: " + otp)
-	otpfile.write(otp[2:].encode())
+	otpfile.write(otp[2:].encode('latin-1'))
 	otpfile.close()
 	return otpname
 
@@ -59,14 +59,14 @@ def applyOTP(name,otpname): #returns false if infile is empty, name of file hold
 	return resname
 
 def recieve_commands(conn):
-	init_commands = conn.recv(BUFSIZE).decode()
+	init_commands = conn.recv(BUFSIZE).decode('latin-1')
 	print("Recieved commands: " + str(init_commands) + "\n")
-	conn.sendall("ACK".encode())
+	conn.sendall("ACK".encode('latin-1'))
 	return init_commands
 
 def recieve_size(conn):
-	init_size = conn.recv(BUFSIZE).decode()
-	conn.sendall("ACK".encode())
+	init_size = conn.recv(BUFSIZE).decode('latin-1')
+	conn.sendall("ACK".encode('latin-1'))
 	print("Recieved size: " + str(init_size) + "\n")
 	return init_size
 
@@ -74,9 +74,17 @@ def recieve_data(conn, numpacks):
 	datastr = ""
 	for i in range(numpacks):
 		print("Recieving part " + str(i))
-		datastr = datastr + conn.recv(BUFSIZE).decode()
-		conn.sendall("ACK".encode())
+		datastr = datastr + conn.recv(BUFSIZE).decode('latin-1')
+		conn.sendall("ACK".encode('latin-1'))
 	return datastr
+
+def send_data(conn, data):
+        print("Sending Data...")
+        for i in range(len(data)//BUFSIZE + 1):
+                print("Sent: part " + str(i))
+                conn.sendall(data[i*BUFSIZE:(i+1)*BUFSIZE].encode('latin-1'))
+                conn.recv(BUFSIZE)
+        print("Sent all: " + data)
 
 def get_AES_key(conn):
         if not (os.path.isfile("public_key.pem")):
@@ -91,10 +99,13 @@ def get_AES_key(conn):
               
         #public_key = RSA.import_key(open("public_key.pem").read())
         public_key = open("public_key.pem").read()
-        conn.sendall(public_key.encode())
+        conn.sendall(public_key.encode('latin-1'))
         encrypted_AES_key = conn.recv(BUFSIZE)
+        conn.sendall("0".encode('latin-1'))
+        nonce = conn.recv(BUFSIZE)
         private_key = RSA.import_key(open("private_key.pem").read())
-        return PKCS1_OAEP.new(private_key).decrypt(encrypted_AES_key)
+        k_AES = PKCS1_OAEP.new(private_key).decrypt(encrypted_AES_key)
+        return AES.new(k_AES, AES.MODE_EAX, nonce), k_AES
 
 def connHandler(): 
 	global GLOBAL_THREADNO
@@ -102,20 +113,21 @@ def connHandler():
 	GLOBAL_THREADNO += 1
 	def fail():
 		print ("Sending Fail Packet\n")
-		conn.send(lib.ReplyPacket())
+		#conn.send(lib.ReplyPacket())
 	
 	s = socket.socket()
 	s.bind((HOST, PORT))
 	s.listen(MAXWAITS)
 	thisthread = str(current_thread())
 	print("Thread #" , thisthread ,": Handler started\n")
-	#log_file.flush()
+
 	conn, addr = s.accept()
 	print("Thread #", thisthread ,":",addr, "connected\n")
 
         #Key Exchange
-	k_AES = get_AES_key(conn)
+	AES_key_object, k_AES = get_AES_key(conn)
 	print("AES key: " + str(k_AES))
+	print("AES nonce: " + str(AES_key_object.nonce))
         
 	#Send initial packet
 	init_commands = recieve_commands(conn)
@@ -127,26 +139,30 @@ def connHandler():
 	print("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
 	print("Thread #", thisthread ,":","\tblob size: ", init_data.blobsize)
 	datastr = recieve_data(conn, int(init_data.blobsize)//BUFSIZE + 1)
+
+        #Recieve file
 	blob_data = lib.DataBlob(datastr)
 	print("Created datablob\n")
 	if not blob_data:
 		print ("Thread #", thisthread ,":","Failed, blob data not recieved\n")
 		fail()
 		return
+	
 	#pull the data from the blob
-	if (blob_data.md5hash != hashlib.md5(blob_data.data.encode()).hexdigest()):
-		print ("Thread #", thisthread ,":","Failed, hashes do not match:", blob_data.hash , "vs." , hashlib.md5(blob_data.hash).hexdigest(), "\n")
+	if (blob_data.md5hash != hashlib.md5(blob_data.data.encode('latin-1')).hexdigest()):
+		print("Thread #", thisthread ,":","Failed, hashes do not match:", blob_data.md5hash, "vs." , hashlib.md5(blob_data.md5hash.encode('latin-1')).hexdigest(), "\n")
+		print("Data: " +  str(blob_data.data))
 		fail()
 		return
-	#log_file.flush()
 	
 	#send reply
-	conn.send(blob_data.md5hash.encode())
+	conn.send(blob_data.md5hash.encode('latin-1'))
 	print ("Thread #", thisthread ,":","Sent success packet\n")
 	
 	#Convert data to binary
-	blob_data = lib.DataBlob(''.join(format(ord(i),'b') for i in blob_data.data))
+	blob_data = lib.DataBlob(''.join(format(ord(i),'b').zfill(8) for i in blob_data.data))
 	print("Data: " + blob_data.data)
+	
 	#Generate OTP of correct length
 	generateOTP(threadno, blob_data.size)
 	otpfile = open(threadno + OTP_KEY_EXTENSION, "r")
@@ -154,7 +170,7 @@ def connHandler():
 	print("OTP:  " + otp)
 	otpfile.seek(0)
 		
-	outfile = open("testoutputdata.blobfile","w+b")
+	outfile = open(str(threadno) + ".blobfile","w+b")
 	data_bin = blob_data.data
 	if int(data_bin, 2) % 8 != 0:
 		data_bin = "0" * (8 - (int(data_bin, 2) % 8)) + data_bin
@@ -167,10 +183,21 @@ def connHandler():
 	for a, b in zip(data_bin, otp_bin):
 		encstr += str(int(a) ^ int(b))
 	print("outp1:       " + encstr)
-	outfile.write(encstr.encode())
+	outfile.write(encstr.encode('latin-1'))
 	outfile.close()
 	print ("Thread #", thisthread ,":","Wrote recieved data to file\n")
+	
+        #Send OTP
+	send_data(conn, otp_bin)
+	print("Sending ...")
+        #Wait for some time
 
+	#Reread file
+	infile = open(str(threadno) + ".blobfile","r")
+	enc = infile.read()
+	print("Sending encoded...")
+	send_data(conn, enc)
+	
 	conn.close()
 	s.close()
 	print ("Thread #", thisthread ,":","closed\n")
