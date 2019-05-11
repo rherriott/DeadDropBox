@@ -18,6 +18,7 @@ import keygen
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.Random import get_random_bytes
+from email.utils import parseaddr
 
 ###DEFINES
 MAXWAITS = 10
@@ -42,9 +43,20 @@ def con():
   return s
 
 def get_commands():
-  print("Commands not yet implemented")
-  ##os.flush()
-  return "10" #Breaks if no content
+  #print("Commands not yet implemented")
+  #sys.stdout.flush()
+  inp = input("Email Address for return: ")
+  com = "|EMAIL|"
+  if not inp:
+    print("No return address provided, quitting.\n")
+    return
+  email = parseaddr(inp)[1]
+  if (not '@' in email or not '.' in email):
+    print("Unacceptable email, quitting.\n")
+    return
+  com += email + '|'
+    
+  return com #Breaks if no content
 
 def get_datablob():
   #print("File get not yet implemented")
