@@ -43,13 +43,21 @@ def con():
 
 def get_commands():
   print("Commands not yet implemented")
-  #os.flush()
+  ##os.flush()
   return "10" #Breaks if no content
 
 def get_datablob():
-  print("File get not yet implemented")
-  #os.flush()
-  return "lORem iPsUm" #Breaks if no content
+  #print("File get not yet implemented")
+  #sys.stdout.flush()
+  fname = input("File: ")
+  inf = open(fname,"rb")
+  buf = inf.read(1)
+  t = bytearray()
+  while(buf):
+    t += buf
+    buf = inf.read(100)
+  #return "lORem iPsUm" #Breaks if no content
+  return t
 
 def send_init(s,data):
   initpkt = InitPacket(commands,len(data))
@@ -80,7 +88,7 @@ def send_blob(s,data):
 def recv_reply(s,data):
   rep = s.recv(BUFSIZE).decode('latin-1')
   print("Recieved ReplyPacket Hash: " + str(rep) + "\n")
-  #os.flush()
+  ##os.flush()
   return (rep == hashlib.md5(data).hexdigest())
 
 def send_AES(sock):
@@ -106,6 +114,7 @@ if __name__ == "__main__":
   #log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
   #sys.stdout = log_file #all "print"s go to a logfile
   print ("Client started:", datetime.datetime.today().isoformat(),"\n")
+  sys.stdout.flush()
   
   #connect
   s = con()
@@ -114,6 +123,7 @@ if __name__ == "__main__":
   AES_key_object, conn_AES = send_AES(s)
   print("AES key: " + str(conn_AES))
   print("AES nonce: " + str(AES_key_object.nonce))
+  sys.stdout.flush()
   
   #Prompt user for commands
   commands = get_commands()
@@ -127,6 +137,7 @@ if __name__ == "__main__":
   #Wait for reply
   valid = recv_reply(s,data)
   print("Hash Comparison Check: " + str(valid) + "\n")
+  sys.stdout.flush()
   
   #Recieve OTP
   otp = recv_data(s, size//BUFSIZE + 1)
@@ -140,6 +151,7 @@ if __name__ == "__main__":
   xor = recv_data(s, size//BUFSIZE + 1)
 
   print("Recieved encoded: \n" + str(xor))
+  sys.stdout.flush()
   
   otp_file = open("otp", 'r')
   otp = otp_file.read()
@@ -150,16 +162,19 @@ if __name__ == "__main__":
   print("Read otp: \n" + otp)
 
   print("Got data: \n" + data)
+  sys.stdout.flush()
   
   enc_data = ""
   for i in range(len(data)//8):
     enc_data += chr(int(data[i*8:i*8 + 8], 2))
 
   print("Encrypted data:" + enc_data)
+  sys.stdout.flush()
   
   print(AES_decrypt(AES.new(AES_init_bytes, AES.MODE_EAX, private_AES_key_object.nonce), enc_data))
   s.close()
   print("Connection Closed")
+  sys.stdout.flush()
 
-  sys.stdout = sys.__stdout__
+  #sys.stdout = sys.__stdout__
   #log_file.close()
