@@ -55,6 +55,7 @@ def get_commands():
     print("Unacceptable email, quitting.\n")
     return
   com += email + '|'
+  return com
     
   return com #Breaks if no content
 
