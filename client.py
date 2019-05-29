@@ -27,17 +27,13 @@ BUFSIZE = 4096
 #PORT = 4321 #I'm gonna keep this as the default port
 ###END DEFINES
 
-def con():
+def con(HOST = socket.gethostbyname(socket.gethostname()),PORT = 4321):
   #get socket
   s = socket.socket() 
   #if any socket settings changes are needed, they go here
   #connect to host
   HOST = input("Host? (default is localhost)") #may have to fix these due to the janky way that I did logging
   PORT = input("Port? (default is 4321)")
-  if not HOST:          #remember to change these to check formatting eventually
-    HOST = socket.gethostbyname(socket.gethostname())
-  if not PORT:
-    PORT = 4321
 
   s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
   return s
@@ -122,6 +118,13 @@ def recv_data(sock, numpacks):
     sock.sendall("ACK".encode('latin-1'))
   return datastr
 
+def check_args():
+  print("check_args() isn't finished!\n")
+  def FAIL():
+    print("Program was passed bad arguments\nCorrect arguments: <host> <port>\nQUITTING\n",flush=true)
+    exit()
+  #if (bad format) fail()
+
 if __name__ == "__main__":
 
   #log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
@@ -129,8 +132,14 @@ if __name__ == "__main__":
   print ("Client started:", datetime.datetime.today().isoformat(),"\n")
   sys.stdout.flush()
   
+  if len(sys.argv[1:]): #DEAL WITH COMMAND LINE USAGE HERE
+    CL = True
+    check_args() #write this
+  else:
+    CL = False
+
   #connect
-  s = con()
+  s = con(sys.args[1],sys.args[2])
   AES_init_bytes = get_random_bytes(16)
   private_AES_key_object = AES.new(AES_init_bytes, AES.MODE_EAX)
   AES_key_object, conn_AES = send_AES(s)
