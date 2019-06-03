@@ -120,14 +120,17 @@ def connHandler():
 	s.listen(MAXWAITS)
 	thisthread = str(current_thread())
 	print("Thread #" , thisthread ,": Handler started\n")
+	sys.stdout.flush()
 
 	conn, addr = s.accept()
 	print("Thread #", thisthread ,":",addr, "connected\n")
+	sys.stdout.flush()
 
         #Key Exchange
 	AES_key_object, k_AES = get_AES_key(conn)
 	print("AES key: " + str(k_AES))
 	print("AES nonce: " + str(AES_key_object.nonce))
+	sys.stdout.flush()
         
 	#Send initial packet
 	init_commands = recieve_commands(conn)
@@ -138,6 +141,7 @@ def connHandler():
 		return
 	print("Thread #", thisthread ,":","Received connect from ", repr(addr), "\n")
 	print("Thread #", thisthread ,":","\tblob size: ", init_data.blobsize)
+	sys.stdout.flush()
 	datastr = recieve_data(conn, int(init_data.blobsize)//BUFSIZE + 1)
 
         #Recieve file
@@ -154,11 +158,11 @@ def connHandler():
 		print("Data: " +  str(blob_data.data))
 		fail()
 		return
-	
+	sys.stdout.flush()
 	#send reply
 	conn.send(blob_data.md5hash.encode('latin-1'))
 	print ("Thread #", thisthread ,":","Sent success packet\n")
-	
+	sys.stdout.flush()
 	#Convert data to binary
 	blob_data = lib.DataBlob(''.join(format(ord(i),'b').zfill(8) for i in blob_data.data))
 	print("Data: " + blob_data.data)
@@ -180,6 +184,7 @@ def connHandler():
 	#otp_bin = ''.join(format(ord(i),'b') for i in otp)
 	print("Data_binary: " + data_bin)
 	print("OTP_binary:  " + otp)
+	sys.stdout.flush()
 	encstr = ""
 	for a, b in zip(data_bin, otp_bin):
 		encstr += str(int(a) ^ int(b))
@@ -187,40 +192,48 @@ def connHandler():
 	outfile.write(encstr.encode('latin-1'))
 	outfile.close()
 	print ("Thread #", thisthread ,":","Wrote recieved data to file\n")
-	
+	sys.stdout.flush()
         #Send OTP
 	send_data(conn, otp_bin)
 	print("Sending ...")
+	sys.stdout.flush()
         #Wait for some time
-
+	
 	#Reread file
 	infile = open(str(threadno) + ".blobfile","r")
 	enc = infile.read()
 	print("Sending encoded...")
+	sys.stdout.flush()
 	send_data(conn, enc)
 	
 	conn.close()
 	s.close()
 	print ("Thread #", thisthread ,":","closed\n")
+	sys.stdout.flush()
 	#log_file.flush()
 
-def listenerThreads():
-	th = []
-	for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
-		thr = Thread(target=connHandler, args = ())
-		thr.start()
-		th.append(thr)
+#def listenerThreads():
+	#th = []
+	#for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
+	#thr = Thread(target=connHandler, args = ())
+	#thr.start()
+	#th.append(thr)
 	#log_file.flush()
-	for thread in th:
-		while thread.isAlive():
-			pass
+	#for thread in th:
+	#	while thread.isAlive():
+	#		pass
 
 
 if __name__ == "__main__":
 	#log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
 	#sys.stdout = log_file #all "print"s go to a logfile
 	print ("Server started:", datetime.datetime.today().isoformat(),"\n")
-	listenerThreads()
-	print("Server Closed\n")
+	sys.stdout.flush()
+	#os.flush()
+	#listenerThreads()
+	connHandler()
+	print("Connection Closed\n")
+	sys.stdout.flush()
+	#os.flush()
 	sys.stdout = sys.__stdout__
 	#log_file.close()
