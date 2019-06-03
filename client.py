@@ -34,8 +34,11 @@ def con(HOST = socket.gethostbyname(socket.gethostname()),PORT = 4321):
   #connect to host
   HOST = input("Host? (default is localhost)") #may have to fix these due to the janky way that I did logging
   PORT = input("Port? (default is 4321)")
-
-  s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
+  try:
+    s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
+  except:
+    print("Failed to connect to host, QUITTING\n", flush = true)
+    exit()
   return s
 
 def get_commands():
@@ -124,6 +127,11 @@ def check_args():
     print("Program was passed bad arguments\nCorrect arguments: <host> <port>\nQUITTING\n",flush=true)
     exit()
   #if (bad format) fail()
+  #if (sys.argv[1]) #I'll just leave the hostname/ip formatting check to the exception catch in con() for now
+  if (sys.argv[2].isnumeric() && 0 < int(sys.argv[1]) < 65535):
+    pass
+  else:
+    FAIL()
 
 if __name__ == "__main__":
 
