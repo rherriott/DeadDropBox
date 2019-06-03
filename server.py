@@ -232,7 +232,7 @@ if __name__ == "__main__":
 	#os.flush()
 	#listenerThreads()
 	connHandler()
-	print("Server Closed\n")
+	print("Connection Closed\n")
 	sys.stdout.flush()
 	#os.flush()
 	sys.stdout = sys.__stdout__
