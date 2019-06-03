@@ -212,16 +212,16 @@ def connHandler():
 	sys.stdout.flush()
 	#log_file.flush()
 
-def listenerThreads():
-	th = []
-	for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
-		thr = Thread(target=connHandler, args = ())
-		thr.start()
-		th.append(thr)
+#def listenerThreads():
+	#th = []
+	#for i in range(NUMTHREADS): #for the constant version of this use threading.activeCount() in a loop
+	#thr = Thread(target=connHandler, args = ())
+	#thr.start()
+	#th.append(thr)
 	#log_file.flush()
-	for thread in th:
-		while thread.isAlive():
-			pass
+	#for thread in th:
+	#	while thread.isAlive():
+	#		pass
 
 
 if __name__ == "__main__":
@@ -230,7 +230,8 @@ if __name__ == "__main__":
 	print ("Server started:", datetime.datetime.today().isoformat(),"\n")
 	sys.stdout.flush()
 	#os.flush()
-	listenerThreads()
+	#listenerThreads()
+	connHandler()
 	print("Server Closed\n")
 	sys.stdout.flush()
 	#os.flush()
