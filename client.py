@@ -42,14 +42,14 @@ def con():
   return s
 
 def get_commands():
-  print("Commands not yet implemented")
+  #print("Commands not yet implemented")
   #os.flush()
   return "10" #Breaks if no content
 
 def get_datablob():
-  print("File get not yet implemented")
+  #print("File get not yet implemented")
   #os.flush()
-  return "lORem iPsUm" #Breaks if no content
+  return "Lorem Ipsum" #Breaks if no content
 
 def send_init(s,data):
   initpkt = InitPacket(commands,len(data))
