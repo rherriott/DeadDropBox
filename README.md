@@ -1,6 +1,8 @@
 # DeadDropBox
 A timelocked safe for data
 
+Important: I removed multihreading, but even if I hadn't, making the thread number the filename isn't trustowrthy
+
 TODO:
  - Access data in a file, instead of a string literal
  - Take command line arguments
