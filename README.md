@@ -11,3 +11,5 @@ TODO:
  - Device pickup if client thread dies?
  - Sleep
  - Access data in a file, instead of a string literal (I genuinely doubt we're goingto do better than byte arrays)
+
+Notes: Please try to standardize on using bytearrays and not strings to ensure no weirdness happens with formatting. It's probably fine but if it's ever not it will mess with things in wierd ways - all this "latin-1" stuff makes me nervous
