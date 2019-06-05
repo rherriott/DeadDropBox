@@ -4,7 +4,8 @@ A timelocked safe for data
 Important: I removed multihreading, but even if I hadn't, making the thread number the filename isn't trustowrthy
 
 TODO:
- - Take command line arguments
+ - Take command line arguments (it currently takes host/port but not email)
+ - Email retreival!
  - Fix pile of security holes
  - Test on different machines
  - Implement delay on resend
