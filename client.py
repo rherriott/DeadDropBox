@@ -128,7 +128,7 @@ def check_args():
     exit()
   #if (bad format) fail()
   #if (sys.argv[1]) #I'll just leave the hostname/ip formatting check to the exception catch in con() for now
-  if (sys.argv[2].isnumeric() && 0 < int(sys.argv[1]) < 65535):
+  if (sys.argv[2].isnumeric() and 0 < int(sys.argv[1]) < 65535):
     pass
   else:
     FAIL()
