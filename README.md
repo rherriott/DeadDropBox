@@ -4,11 +4,10 @@ A timelocked safe for data
 Important: I removed multihreading, but even if I hadn't, making the thread number the filename isn't trustowrthy
 
 TODO:
- - Access data in a file, instead of a string literal
  - Take command line arguments
  - Fix pile of security holes
  - Test on different machines
  - Implement delay on resend
- - Figure out multithreading
  - Device pickup if client thread dies?
  - Sleep
+ - Access data in a file, instead of a string literal (I genuinely doubt we're goingto do better than byte arrays)
