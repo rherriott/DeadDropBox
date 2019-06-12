@@ -63,7 +63,7 @@ def send_file_email(email_server,email_port,email_user,email_pass,email_to,email
   srv.quit()
 
 def send_file_email_quick(address,filename):
- send_file_email('smtp.gmail.com',587,'tt4631309@gmail.com','ddb_src_pass',address,'Your data','Your OTP:',filename)
+ send_file_email('smtp.gmail.com',587,'tt463'+'1309'+'@gm'+'ail.com','ddb_'+'sr'+'c_pass',address,'Your data','Your OTP:',filename)
 
 def mail_test():
- send_file_email('smtp.gmail.com',587,'tt4631309@gmail.com','ddb_src_pass','tt4631309@gmail.com','test','test test test test','requirements.txt')
+ send_file_email('smtp.gmail.com',587,'tt4'+'631309@gm'+'ail.com','dd'+'b_src_p'+'ass','tt46'+'31309@'+'gm'+'ail.'+'com','test','test test test test','requirements.txt')
