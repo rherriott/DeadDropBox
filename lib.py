@@ -3,6 +3,8 @@ import hashlib
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from Crypto.Cipher import AES
 
 class InitPacket:
@@ -41,12 +43,18 @@ def AES_encrypt(key, data):
 def AES_decrypt(key, data):
   return key.decrypt(data.encode('latin-1'))
 
-def send_file_email(email_server,email_port,email_user,email_pass,email_to,email_subj,email_msg):
+def send_file_email(email_server,email_port,email_user,email_pass,email_to,email_subj,email_msg,email_filename):
   mail = MIMEMultipart()
   mail['From'] = email_user
   mail['To'] = email_to
   mail['Subject'] = email_subj
   mail.attach(MIMEText(email_msg,'plain'))
+  atmt = open(email_filename,'rb')
+  part = MIMEBase("application",'octet-stream')
+  part.set_payload(atmt.read())
+  encoders.encode_base64(part)
+  part.add_header('Content-Disposition','attachment; filename='+email_filename)
+  mail.attach(part)
   email_contents = mail.as_string()
   srv = smtplib.SMTP(email_server,email_port)
   srv.starttls()
@@ -54,5 +62,8 @@ def send_file_email(email_server,email_port,email_user,email_pass,email_to,email
   srv.sendmail(email_user,email_to,email_contents)
   srv.quit()
 
+def send_file_email_quick(address,filename):
+ send_file_email('smtp.gmail.com',587,'tt4631309@gmail.com','ddb_src_pass',address,'Your data','Your OTP:',filename)
+
 def mail_test():
- send_file_email('smtp.gmail.com',587,'tt4631309@gmail.com','ddb_src_pass','tt4631309@gmail.com','test','test test test test')
+ send_file_email('smtp.gmail.com',587,'tt4631309@gmail.com','ddb_src_pass','tt4631309@gmail.com','test','test test test test','requirements.txt')
