@@ -4,7 +4,7 @@ import sys
 import os
 import datetime
 from threading import *
-import lib #I have no goddamn idea how importing modules works
+import lib 
 import hashlib
 import keygen
 import math

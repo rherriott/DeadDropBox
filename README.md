@@ -5,7 +5,7 @@ Important: I removed multihreading, but even if I hadn't, making the thread numb
 
 TODO:
  - Take command line arguments (it currently takes host/port but not email)
- - Email retreival!
+ - Email retreival (implemented in lib, just needs to be used)
  - Fix pile of security holes
  - Test on different machines
  - Implement delay on resend

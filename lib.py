@@ -1,6 +1,7 @@
 import sys
 import hashlib
 import smtplib
+import time
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -62,8 +63,16 @@ def send_file_email(email_server,email_port,email_user,email_pass,email_to,email
   srv.sendmail(email_user,email_to,email_contents)
   srv.quit()
 
+#it may be a good idea to strip these for the final version but it really odesnt matter all that much
+
 def send_file_email_quick(address,filename):
  send_file_email('smtp.gmail.com',587,'tt463'+'1309'+'@gm'+'ail.com','ddb_'+'sr'+'c_pass',address,'Your data','Your OTP:',filename)
 
 def mail_test():
  send_file_email('smtp.gmail.com',587,'tt4'+'631309@gm'+'ail.com','dd'+'b_src_p'+'ass','tt46'+'31309@'+'gm'+'ail.'+'com','test','test test test test','requirements.txt')
+
+def wait_dhms(days,hours,minutes,seconds):
+  hours = hours + days*24
+  minutes = minutes + hours*60
+  seconds = seconds + minutes*60
+  time.sleep(seconds)
