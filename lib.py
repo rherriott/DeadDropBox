@@ -1,5 +1,8 @@
 import sys
 import hashlib
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from Crypto.Cipher import AES
 
 class InitPacket:
@@ -37,3 +40,19 @@ def AES_encrypt(key, data):
 
 def AES_decrypt(key, data):
   return key.decrypt(data.encode('latin-1'))
+
+def send_file_email(email_server,email_port,email_user,email_pass,email_to,email_subj,email_msg):
+  mail = MIMEMultipart()
+  mail['From'] = email_user
+  mail['To'] = email_to
+  mail['Subject'] = email_subj
+  mail.attach(MIMEText(email_msg,'plain'))
+  email_contents = mail.as_string()
+  srv = smtplib.SMTP(email_server,email_port)
+  srv.starttls()
+  srv.login(email_user,email_pass)
+  srv.sendmail(email_user,email_to,email_contents)
+  srv.quit()
+
+def mail_test():
+ send_file_email('smtp.gmail.com',587,'tt4631309@gmail.com','ddb_src_pass','tt4631309@gmail.com','test','test test test test')
