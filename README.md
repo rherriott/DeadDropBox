@@ -8,7 +8,7 @@ TODO:
  - Email retreival (implemented in lib, just needs to be used)
  - Fix pile of security holes
  - Test on different machines
- - Implement delay on resend
+ - Implement delay on resend (implemented in lib, just needs to be used)
  - Device pickup if client thread dies?
  - Sleep
  - Access data in a file, instead of a string literal (I genuinely doubt we're goingto do better than byte arrays)
