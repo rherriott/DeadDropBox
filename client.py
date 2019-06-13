@@ -25,6 +25,8 @@ MAXWAITS = 10
 BUFSIZE = 4096
 #HOST = "127.0.0.1" 
 #PORT = 4321 #I'm gonna keep this as the default port
+DEFAULT_HOST = 'localhost'
+DEFAULT_PORT = 4321
 ###END DEFINES
 
 def con(HOST = socket.gethostbyname(socket.gethostname()),PORT = 4321):
@@ -37,7 +39,7 @@ def con(HOST = socket.gethostbyname(socket.gethostname()),PORT = 4321):
   try:
     s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
   except:
-    print("Failed to connect to host, QUITTING\n", flush = true)
+    print("Failed to connect to host, QUITTING\n", flush = True)
     exit()
   return s
 
@@ -124,7 +126,7 @@ def recv_data(sock, numpacks):
 def check_args():
   print("check_args() isn't finished!\n")
   def FAIL():
-    print("Program was passed bad arguments\nCorrect arguments: <host> <port>\nQUITTING\n",flush=true)
+    print("Program was passed bad arguments\nCorrect arguments: <host> <port>\nQUITTING\n",flush=True)
     exit()
   #if (bad format) fail()
   #if (sys.argv[1]) #I'll just leave the hostname/ip formatting check to the exception catch in con() for now
@@ -143,11 +145,13 @@ if __name__ == "__main__":
   if len(sys.argv[1:]): #DEAL WITH COMMAND LINE USAGE HERE
     CL = True
     check_args() #write this
+    s = con(sys.args[1],sys.args[2])
   else:
     CL = False
+    s = con(DEFAULT_HOST, DEFAULT_PORT)
 
   #connect
-  s = con(sys.args[1],sys.args[2])
+  #s = con(sys.args[1],sys.args[2])
   AES_init_bytes = get_random_bytes(16)
   private_AES_key_object = AES.new(AES_init_bytes, AES.MODE_EAX)
   AES_key_object, conn_AES = send_AES(s)
