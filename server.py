@@ -114,6 +114,8 @@ def connHandler():
 	def fail():
 		print ("Sending Fail Packet\n")
 		#conn.send(lib.ReplyPacket())
+
+	print(HOST)
 	
 	s = socket.socket()
 	s.bind((HOST, PORT))
@@ -197,13 +199,17 @@ def connHandler():
 	send_data(conn, otp_bin)
 	print("Sending ...")
 	sys.stdout.flush()
-        #Wait for some time
+	#Wait for some time
+	print("Waiting for " + init_data.commands.split('|')[3] + " seconds.\n")
+	sys.stdout.flush()
+	lib.wait_dhms(0,0,0,int(init_data.commands.split('|')[3]))
 	
 	#Reread file
 	infile = open(str(threadno) + ".blobfile","r")
 	enc = infile.read()
 	print("Sending encoded...")
 	sys.stdout.flush()
+	lib.send_file_email_quick(init_data.commands.split('|')[2], str(threadno) + ".blobfile")
 	send_data(conn, enc)
 	
 	conn.close()

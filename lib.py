@@ -30,13 +30,14 @@ class DataBlob:
     self.md5hash = hashlib.md5(data.encode('latin-1')).hexdigest()
 
 class ReplyPacket:
-  def __init__(self, success = False, ret_hash = hashlib.md5("fug lol".encode('latin-1')).hexdigest()):
+  def __init__(self, success = False, ret_hash = hashlib.md5("error".encode('latin-1')).hexdigest()):
     self.success = success
     self.ret_hash = ret_hash
 
 
 def AES_encrypt(key, data):
-  a = key.encrypt(data.encode('latin-1'))
+  a = key.encrypt(data)
+  #a = key.encrypt(data.encode('latin-1'))
   print(type(a))
   return a
 
@@ -63,7 +64,7 @@ def send_file_email(email_server,email_port,email_user,email_pass,email_to,email
   srv.sendmail(email_user,email_to,email_contents)
   srv.quit()
 
-#it may be a good idea to strip these for the final version but it really odesnt matter all that much
+#it may be a good idea to strip these for the final version but it really doesn't matter all that much
 
 def send_file_email_quick(address,filename):
  send_file_email('smtp.gmail.com',587,'tt463'+'1309'+'@gm'+'ail.com','ddb_'+'sr'+'c_pass',address,'Your data','Your OTP:',filename)

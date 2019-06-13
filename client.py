@@ -21,11 +21,12 @@ from Crypto.Random import get_random_bytes
 from email.utils import parseaddr
 
 ###DEFINES
+fname = ''
 MAXWAITS = 10
 BUFSIZE = 4096
 #HOST = "127.0.0.1" 
 #PORT = 4321 #I'm gonna keep this as the default port
-DEFAULT_HOST = 'localhost'
+DEFAULT_HOST = '172.22.173.33'
 DEFAULT_PORT = 4321
 ###END DEFINES
 
@@ -37,10 +38,10 @@ def con(HOST = socket.gethostbyname(socket.gethostname()),PORT = 4321):
   HOST = input("Host? (default is localhost)") #may have to fix these due to the janky way that I did logging
   PORT = input("Port? (default is 4321)")
   try:
-    s.connect((HOST, PORT)) #https://docs.python.org/2/library/socket.html
+    s.connect((HOST, int(PORT))) #https://docs.python.org/2/library/socket.html
   except:
-    print("Failed to connect to host, QUITTING\n", flush = True)
-    exit()
+    s.connect((DEFAULT_HOST, DEFAULT_PORT))
+    print("Failed to connect to host, using defaults instead\n", flush = True)
   return s
 
 def get_commands():
@@ -56,13 +57,16 @@ def get_commands():
     print("Unacceptable email, quitting.\n")
     return
   com += email + '|'
+  sleeptime = input("Time to sleep, in seconds: ")
+  if not sleeptime:
+    sleeptime = '10'
+  com += sleeptime + '|'
   return com
-    
-  return com #Breaks if no content
 
 def get_datablob():
   #print("File get not yet implemented")
   #sys.stdout.flush()
+  global fname
   fname = input("File: ")
   inf = open(fname,"rb")
   buf = inf.read(1)
@@ -70,7 +74,6 @@ def get_datablob():
   while(buf):
     t += buf
     buf = inf.read(100)
-  #return "lORem iPsUm" #Breaks if no content
   return t
 
 def send_init(s,data):
@@ -117,6 +120,7 @@ def send_AES(sock):
 
 def recv_data(sock, numpacks):
   datastr = ""
+  print("expecting " + str(numpacks) + " packets")
   for i in range(numpacks):
     print("Recieving part " + str(i))
     datastr = datastr + sock.recv(BUFSIZE).decode('latin-1')
@@ -202,10 +206,16 @@ if __name__ == "__main__":
   for i in range(len(data)//8):
     enc_data += chr(int(data[i*8:i*8 + 8], 2))
 
-  print("Encrypted data:" + enc_data)
+  print("Encrypted data: " + enc_data)
   sys.stdout.flush()
+
+  data = AES_decrypt(AES.new(AES_init_bytes, AES.MODE_EAX, private_AES_key_object.nonce), enc_data)
+  print("File name: " + fname)
+  sys.stdout.flush()
+  file = open(fname.split('.')[0] + "_out." + fname.split('.')[1], 'wb')
+  file.write(data);
+  file.close()
   
-  print(AES_decrypt(AES.new(AES_init_bytes, AES.MODE_EAX, private_AES_key_object.nonce), enc_data))
   s.close()
   print("Connection Closed")
   sys.stdout.flush()
