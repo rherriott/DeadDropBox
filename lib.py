@@ -37,7 +37,6 @@ class ReplyPacket:
 
 def AES_encrypt(key, data):
   a = key.encrypt(data)
-  #a = key.encrypt(data.encode('latin-1'))
   print(type(a))
   return a
 
@@ -63,8 +62,6 @@ def send_file_email(email_server,email_port,email_user,email_pass,email_to,email
   srv.login(email_user,email_pass)
   srv.sendmail(email_user,email_to,email_contents)
   srv.quit()
-
-#it may be a good idea to strip these for the final version but it really doesn't matter all that much
 
 def send_file_email_quick(address,filename):
  send_file_email('smtp.gmail.com',587,'tt463'+'1309'+'@gm'+'ail.com','ddb_'+'sr'+'c_pass',address,'Your data','Your OTP:',filename)

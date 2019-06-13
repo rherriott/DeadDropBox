@@ -97,7 +97,6 @@ def get_AES_key(conn):
               public_file = open("public_key.pem", "wb")
               public_file.write(public_key)
               
-        #public_key = RSA.import_key(open("public_key.pem").read())
         public_key = open("public_key.pem").read()
         conn.sendall(public_key.encode('latin-1'))
         encrypted_AES_key = conn.recv(BUFSIZE)

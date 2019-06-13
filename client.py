@@ -64,8 +64,6 @@ def get_commands():
   return com
 
 def get_datablob():
-  #print("File get not yet implemented")
-  #sys.stdout.flush()
   global fname
   fname = input("File: ")
   inf = open(fname,"rb")
@@ -132,7 +130,6 @@ def check_args():
   def FAIL():
     print("Program was passed bad arguments\nCorrect arguments: <host> <port>\nQUITTING\n",flush=True)
     exit()
-  #if (bad format) fail()
   #if (sys.argv[1]) #I'll just leave the hostname/ip formatting check to the exception catch in con() for now
   if (sys.argv[2].isnumeric() and 0 < int(sys.argv[1]) < 65535):
     pass
@@ -141,8 +138,6 @@ def check_args():
 
 if __name__ == "__main__":
 
-  #log_file = open("log_" + datetime.datetime.today().isoformat().replace(":","-") + ".txt","w") #I think this will make an ISO timestamped logfile
-  #sys.stdout = log_file #all "print"s go to a logfile
   print ("Client started:", datetime.datetime.today().isoformat(),"\n")
   sys.stdout.flush()
   
@@ -155,7 +150,6 @@ if __name__ == "__main__":
     s = con(DEFAULT_HOST, DEFAULT_PORT)
 
   #connect
-  #s = con(sys.args[1],sys.args[2])
   AES_init_bytes = get_random_bytes(16)
   private_AES_key_object = AES.new(AES_init_bytes, AES.MODE_EAX)
   AES_key_object, conn_AES = send_AES(s)
@@ -219,6 +213,3 @@ if __name__ == "__main__":
   s.close()
   print("Connection Closed")
   sys.stdout.flush()
-
-  #sys.stdout = sys.__stdout__
-  #log_file.close()

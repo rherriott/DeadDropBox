@@ -2,10 +2,8 @@ from os import urandom
 import random
 
 DEBUG = False
-'''
-'''
+
 def __getRandomBitstream(bits):
-    # print(type(bits))
     return urandom(bits//8)
 
 def __isPrime(n, trials):
@@ -15,7 +13,7 @@ def __isPrime(n, trials):
     A return value of False means n is certainly not prime. A return value of
     True means n is very likely a prime.
 
-    From rosettacode.com
+    Source: RosettaCode.com
     """
     if n!=int(n):
         return False
@@ -59,7 +57,6 @@ def __getLargeRandomPrime(length):
     while(True):
         i += 1
         num = __getLargeRandom(length)
-        #print(str(type(num)) + ":" + str(num))
         if i % 10 == 0:
             print('.', end="")
         if(__isPrime(num, 30)):
@@ -135,8 +132,9 @@ def getRSAKeypair(keylen):
     return pub, mod, priv
 
 if __name__ == "__main__":
-    #print(str(__modInverse(42, 2017)))
-    #print(str(__modInverse(11, 14)))
-    #print(str(__modInverse(17, 780)))
-    print(getRSAKeypair(1024))
-    #print(getAESKey(128))
+    if(DEBUG):
+        #print(str(__modInverse(42, 2017)))
+        #print(str(__modInverse(11, 14)))
+        #print(str(__modInverse(17, 780)))
+        print(getRSAKeypair(1024))
+        print(getAESKey(128))
